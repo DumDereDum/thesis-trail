@@ -18,6 +18,12 @@ transaction=''
 application_started=0
 application_succeeded=0
 changed_count=0
+archive_directory=''
+archive_relative=''
+archive_entries=()
+archive_count=0
+archive_attempted=0
+metadata_index=4
 managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.tt/thesis-trail.json')
 
 while [[ $# -gt 0 ]]; do
@@ -58,13 +64,14 @@ for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; 
 if [[ "$from_version" == none ]]; then
     [[ ! -e "$tt_metadata" ]] || tt_fail 'ThesisTrail metadata already exists. Use the updater instead.'
     # Do not overwrite unrelated files when initializing a project.
-    for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md; do
+    for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md .tt/setup-state; do
+        tt_regular_or_absent "$tt_project/$path"
         [[ ! -e "$tt_project/$path" ]] || tt_fail "Initial installation would overwrite $path."
     done
 fi
 
 apply_cleanup() {
-    local result=$? index destination restore_failed=0
+    local result=$? index destination archived name restore_failed=0
     trap - EXIT INT TERM
     if [[ "$application_started" == 1 && "$application_succeeded" == 0 ]]; then
         for ((index=changed_count-1; index>=0; index--)); do
@@ -75,12 +82,39 @@ apply_cleanup() {
                 rm -f -- "$destination" || restore_failed=1
             fi
         done
+    fi
+    if [[ "$application_succeeded" == 0 && -n "$archive_directory" ]]; then
+        for ((index=archive_attempted-1; index>=0; index--)); do
+            name=${archive_entries[$index]}
+            archived="$archive_directory/$name"
+            destination="$tt_project/$name"
+            if [[ -e "$archived" || -L "$archived" ]]; then
+                if [[ -e "$destination" || -L "$destination" ]]; then
+                    # The transaction may already have restored these two files.
+                    if [[ ( "$name" != AGENTS.md && "$name" != .gitignore ) || ! -f "$destination" || -L "$destination" ]]; then
+                        printf 'Error: Cannot restore an archived entry over a conflicting path: %s.\n' "$destination" >&2
+                        restore_failed=1
+                        continue
+                    fi
+                fi
+                mv -f -- "$archived" "$destination" || restore_failed=1
+            elif [[ ! -e "$destination" && ! -L "$destination" ]]; then
+                printf 'Error: Archived entry is missing from both locations: %s.\n' "$name" >&2
+                restore_failed=1
+            fi
+        done
         if [[ "$restore_failed" == 0 ]]; then
-            printf 'Update application failed; the previous installation was restored.\n' >&2
+            rm -rf -- "$archive_directory" || restore_failed=1
         fi
+    fi
+    if [[ "$application_started" == 1 && "$application_succeeded" == 0 && "$restore_failed" == 0 ]]; then
+        printf 'Application failed; the previous project state was restored.\n' >&2
     fi
     if [[ "$restore_failed" == 1 ]]; then
         printf 'Error: Restoration was incomplete. Backups retained at %s.\n' "$transaction" >&2
+        if [[ -n "$archive_directory" ]]; then
+            printf 'Original project snapshot: %s.\n' "$archive_directory" >&2
+        fi
         result=1
     elif [[ -n "$transaction" ]]; then
         rm -rf -- "$transaction" || :
@@ -97,6 +131,26 @@ tt_acquire_lock
 for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
 if [[ "$from_version" == none ]]; then
     [[ ! -e "$tt_metadata" ]] || tt_fail 'Metadata appeared during installation.'
+    [[ "$release_directory" != "$tt_project" && "$release_directory" != "$tt_project/"* ]] || tt_fail 'Initial installation requires release staging outside the project. Use a TMPDIR outside the project.'
+    # Recheck initial-only conflicts under the lock before touching materials.
+    for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md .tt/setup-state; do
+        tt_regular_or_absent "$tt_project/$path"
+        [[ ! -e "$tt_project/$path" ]] || tt_fail "Initial installation would overwrite $path."
+    done
+    [[ ! -L "$tt_project/.backup" && ( ! -e "$tt_project/.backup" || -d "$tt_project/.backup" ) ]] || tt_fail '.backup must be a real directory.'
+    shopt -s dotglob nullglob
+    for entry in "$tt_project"/*; do
+        name=${entry##*/}
+        case "$name" in .git|.tt|.backup) continue ;; esac
+        archive_entries[$archive_count]=$name
+        archive_count=$((archive_count+1))
+    done
+    shopt -u dotglob nullglob
+    if [[ "$archive_count" -gt 0 ]]; then
+        managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.gitignore' '.tt/setup-state' '.tt/thesis-trail.json')
+        metadata_index=6
+        for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+    fi
 else
     tt_read_metadata
     [[ "$tt_current_version" == "$from_version" ]] || tt_fail 'The installed version changed. Check again before updating.'
@@ -116,7 +170,7 @@ chmod 755 "$transaction/new/0"
 chmod 644 "$transaction/new/1" "$transaction/new/2"
 
 printf '%s\n' '<!-- ThesisTrail:begin -->' '## ThesisTrail' '' \
-    'At the start of work in this project, read [.tt/agent-rules.md](.tt/agent-rules.md) and follow its release-check and update-consent rules.' \
+    'At the start of work in this project, read [.tt/agent-rules.md](.tt/agent-rules.md). Follow pending initial project setup before topic onboarding, and follow the student workflow, topic-card, release-check, and update-consent rules.' \
     '<!-- ThesisTrail:end -->' > "$transaction/hook"
 # Validate markers before constructing an edited root instruction file.
 if [[ -f "$tt_project/AGENTS.md" ]]; then
@@ -156,25 +210,47 @@ else
     branch_json=$(tt_json_string "$reference")
 fi
 timestamp=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+metadata_staged="$transaction/new/$metadata_index"
 if [[ "$from_version" == none ]]; then
     printf '{\n  "schema_version": 1,\n  "repository": %s,\n  "version": %s,\n  "tag": %s,\n  "branch": %s,\n  "commit": %s,\n  "installed_at": %s,\n  "updated_at": %s\n}\n' \
       "$(tt_json_string "$tt_repository")" "$version_json" "$tag_json" "$branch_json" \
-      "$(tt_json_string "$commit")" "$(tt_json_string "$timestamp")" "$(tt_json_string "$timestamp")" > "$transaction/new/4"
+      "$(tt_json_string "$commit")" "$(tt_json_string "$timestamp")" "$(tt_json_string "$timestamp")" > "$metadata_staged"
 else
-    cp -p -- "$tt_metadata" "$transaction/new/4"
-    tt_json_set "$transaction/new/4" version "$version_json"
-    tt_json_set "$transaction/new/4" tag "$tag_json"
-    tt_json_set "$transaction/new/4" branch "$branch_json"
-    tt_json_set "$transaction/new/4" commit "$(tt_json_string "$commit")"
-    tt_json_set "$transaction/new/4" updated_at "$(tt_json_string "$timestamp")"
+    cp -p -- "$tt_metadata" "$metadata_staged"
+    tt_json_set "$metadata_staged" version "$version_json"
+    tt_json_set "$metadata_staged" tag "$tag_json"
+    tt_json_set "$metadata_staged" branch "$branch_json"
+    tt_json_set "$metadata_staged" commit "$(tt_json_string "$commit")"
+    tt_json_set "$metadata_staged" updated_at "$(tt_json_string "$timestamp")"
 fi
-tt_json validate "$transaction/new/4" || tt_fail 'Prepared metadata is invalid.'
+tt_json validate "$metadata_staged" || tt_fail 'Prepared metadata is invalid.'
+
+if [[ "$archive_count" -gt 0 ]]; then
+    if [[ -f "$tt_project/.gitignore" ]]; then
+        cp -p -- "$tt_project/.gitignore" "$transaction/new/4"
+    else
+        : > "$transaction/new/4"
+        chmod 644 "$transaction/new/4"
+    fi
+    printf '\n# ThesisTrail initial project backup\n/.backup/\n' >> "$transaction/new/4"
+    mkdir -p -- "$tt_project/.backup"
+    archive_directory=$(mktemp -d "$tt_project/.backup/project-$(date -u '+%Y%m%dT%H%M%SZ').XXXXXXXX")
+    archive_relative=${archive_directory#"$tt_project/"}
+    git config --file "$transaction/new/5" setup.status pending
+    git config --file "$transaction/new/5" setup.backup "$archive_relative"
+fi
 
 for ((index=0; index<${#managed_paths[@]}; index++)); do
     destination="$tt_project/${managed_paths[$index]}"
     if [[ -f "$destination" ]]; then cp -p -- "$destination" "$transaction/backup/$index"; fi
 done
 application_started=1
+for ((index=0; index<archive_count; index++)); do
+    # Count before moving so a handled signal still restores the current entry.
+    archive_attempted=$((index+1))
+    name=${archive_entries[$index]}
+    mv -- "$tt_project/$name" "$archive_directory/$name"
+done
 for ((index=0; index<${#managed_paths[@]}; index++)); do
     destination="$tt_project/${managed_paths[$index]}"
     changed_count=$((index+1))
@@ -186,3 +262,15 @@ done
 application_succeeded=1
 printf 'ThesisTrail installed from %s %s (%s).\n' "$selection" "$reference" "$commit"
 printf 'Metadata: %s\n' "$tt_metadata"
+if [[ "$from_version" == none ]]; then
+    if [[ -n "$archive_directory" ]]; then
+        printf '\nOriginal project materials: %s\n' "$archive_relative"
+        printf '%s\n' \
+            'Next: open this project in an AI agent that reads AGENTS.md and ask it to prepare the project from the backup.' \
+            'The agent will copy materials back, preserve the snapshot, and create or reuse the topic card.'
+    else
+        printf '\n%s\n' \
+            'Next: open this project in an AI agent that reads AGENTS.md and ask to start your coursework or thesis.' \
+            'The agent will help you create docs/topic.md during the conversation.'
+    fi
+fi
