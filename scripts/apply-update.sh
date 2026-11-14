@@ -116,7 +116,7 @@ chmod 755 "$transaction/new/0"
 chmod 644 "$transaction/new/1" "$transaction/new/2"
 
 printf '%s\n' '<!-- ThesisTrail:begin -->' '## ThesisTrail' '' \
-    'At the start of work in this project, read [.tt/agent-rules.md](.tt/agent-rules.md) and follow its release-check and update-consent rules.' \
+    'At the start of work in this project, read [.tt/agent-rules.md](.tt/agent-rules.md) and follow its student workflow, topic-card, release-check, and update-consent rules.' \
     '<!-- ThesisTrail:end -->' > "$transaction/hook"
 # Validate markers before constructing an edited root instruction file.
 if [[ -f "$tt_project/AGENTS.md" ]]; then
@@ -186,3 +186,8 @@ done
 application_succeeded=1
 printf 'ThesisTrail installed from %s %s (%s).\n' "$selection" "$reference" "$commit"
 printf 'Metadata: %s\n' "$tt_metadata"
+if [[ "$from_version" == none ]]; then
+    printf '\n%s\n' \
+        'Next: open this project in an AI agent that reads AGENTS.md and ask to start your coursework or thesis.' \
+        'The agent will help you create docs/topic.md during the conversation.'
+fi

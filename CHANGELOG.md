@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- Guide students through a first topic discussion and a six-field, bilingual topic card in `docs/topic.md`.
+- Reuse existing topic context and update accepted decisions without repeating onboarding or inventing academic details.
+- Include the card template in the agent rules and extend the root `AGENTS.md` hook to cover the student workflow.
+- Print a next-step prompt after initial installation; keep topic cards student-owned and outside installer/update management.
+
 ## [v0.0.2]
 
 - Install a standalone update launcher, agent rules, and release notes in `.tt/`.

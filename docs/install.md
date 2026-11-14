@@ -12,7 +12,9 @@ Releases containing the [update protocol](update.md) install:
 - `.tt/CHANGELOG.md`: that revision's release notes.
 - A marked ThesisTrail section in root `AGENTS.md` linking to the rules.
 
-Existing root instructions are preserved; a missing `AGENTS.md` is created. No skills, templates, learning documents, or client-specific directories are installed. Clients that do not read `AGENTS.md` need their own instruction configuration.
+Existing root instructions are preserved; a missing `AGENTS.md` is created. No skills, separate template files, student documents, or client-specific directories are installed. Clients that do not read `AGENTS.md` need their own instruction configuration.
+
+Revisions implementing the [student workflow](student-workflow.md) include an inline topic-card template in the agent rules and a root hook covering student work as well as maintenance. Successful initial installation prints a prompt to open the project in an agent that reads `AGENTS.md` and ask to start coursework or a thesis. The agent helps create the student-owned `docs/topic.md` during that conversation. Installation does not create `docs/`, change an existing card, or start an agent. Updates do not print the initial-installation prompt. This workflow is not included in `v0.0.2`.
 
 `v0.0.1` predates the updater. Selecting that revision retains its metadata-only behavior; files from different revisions are never mixed. See [bootstrapping an older installation](update.md#bootstrapping-v001).
 
@@ -71,4 +73,4 @@ bash -n scripts/update.sh
 bash -n scripts/apply-update.sh
 ```
 
-Installation and update behavior was verified in disposable projects on macOS with Bash 3.2 on 2026-11-14. A live GitHub check also installed the published `v0.0.1` tag and verified that checking did not change its metadata. See [update verification](update.md#verification) for details and remaining platform coverage.
+Installation and update behavior was verified in disposable projects on macOS with Bash 3.2 on 2026-11-14. Live GitHub tests passed for the exact README installation command selecting published `v0.0.2`, explicit tag/branch installation, and migration from published `v0.0.1`. See [update verification](update.md#verification) for details and remaining platform coverage.

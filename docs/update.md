@@ -68,6 +68,8 @@ the marked ThesisTrail section of AGENTS.md
 
 Managed kit files are replaced; users keep their own instructions outside them and the marked block. Preserve unrelated files and unknown JSON metadata fields, including nested values. Preserve `installed_at`; change version/reference, commit, and `updated_at` only after successful application. Do not add a `status` field.
 
+The student-owned `docs/topic.md` described in the [student workflow](student-workflow.md) is outside the managed set. Updating the agent rules and root hook must not create, rewrite, or migrate a topic card or print the first-installation onboarding prompt.
+
 Reject unsafe paths, malformed metadata, unsupported schemas, and malformed/duplicate root instruction markers. `.tt/.update-lock` excludes concurrent checks/applications. A stale lock after an unhandled termination requires manual inspection/removal.
 
 Prepare files and backups before replacement; rename staged files into place, metadata last. Restore originals after an ordinary failure or handled signal. This is not a cross-file atomic transaction or power-loss recovery. If restoration fails, retain backups and report their path. Clean up temporary releases and successful transaction backups.
@@ -113,4 +115,14 @@ Verified on 2026-11-14 on macOS with Bash 3.2.57, using disposable Git sources a
 - Same-release no-op, unsupported-schema/lock/symlink/marker/conflict rejection, and restoration of file contents and modification times after injected kit-file and final-metadata replacement failures.
 - Invocation by path from outside the project and by filename from inside `.tt/`.
 
-A separate live GitHub check installed the published `v0.0.1` commit `481adfe3fde49489edf590019da0c46ff615254b` and reported it current without changing installation metadata. Applying a new protocol release against GitHub still requires publishing that release. Linux execution remains unverified because the Docker daemon was unavailable.
+After `v0.0.2` was published, a live GitHub run passed all seven scenarios and 87 assertions using the published scripts and releases:
+
+- The exact README pipeline selected `v0.0.2` at `a365bff3629077e2b40687d889cc8710cb568278`; installed kit files matched that tag byte for byte. Repeated installation was rejected without changing file contents, permissions, or modification times.
+- A metadata-only `v0.0.1` installation at `481adfe3fde49489edf590019da0c46ff615254b` discovered `v0.0.2`, respected the 24-hour interval and deferral, and migrated successfully using the launcher downloaded through standard input. Checks left installation files unchanged.
+- Migration preserved student documents, unrelated `.tt/` files, existing root instructions, nested unknown metadata including Unicode, metadata permissions, and `installed_at`; it advanced `updated_at` and installed exactly one root instruction block.
+- Explicit `v0.0.2` and `main` installations, branch-to-release application, same-release no-op, and launcher invocation from outside the project and from inside `.tt/` passed.
+- Invalid arguments, a missing release, an existing lock, malformed metadata, metadata symlinks, and a mismatched installed commit for the same tag were rejected without changing installation files.
+- An injected Git fetch failure recorded the attempt without changing the last successful check time or installation; the next automatic check was throttled.
+- Injected kit-file and final-metadata replacement failures in the fetched release's applier restored file contents, permissions, and modification times. Temporary releases, transactions, and acquired locks were cleaned up.
+
+No newer published release was available to test a future upgrade from `v0.0.2`. Linux execution remains unverified because the Docker daemon was unavailable.
