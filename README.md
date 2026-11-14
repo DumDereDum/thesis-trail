@@ -13,3 +13,5 @@ curl -fsSL https://raw.githubusercontent.com/DumDereDum/thesis-trail/main/script
 ```
 
 [Installation details](docs/install.md).
+
+Agents using the installed instructions check for releases at most once per day and ask before applying an update. [Update details](docs/update.md).
