@@ -1,6 +1,6 @@
 # ThesisTrail installer
 
-Status: initial implementation available in `scripts/install.sh`. Branch installation is covered by local integration tests. Successful tag installation and chronological tag selection will be tested after the first version tag is published; tests do not create tags.
+Status: initial implementation available in `scripts/install.sh`. Branch installation was verified on macOS. Successful tag installation and chronological tag selection remain to be verified after the first version tag is published.
 
 ## Purpose and scope
 
@@ -107,14 +107,9 @@ Verify that:
 
 ```bash
 bash -n scripts/install.sh
-python3 tests/test_install.py
 ```
 
-Python 3 is used only by the development test runner, not by the installer. The runner preserves test projects and logs in a new run directory under `../thesis-trail-install-tests/`; use `--work-dir PATH` to choose another parent directory.
-
-Tests redirect the installer's production Git URL to an isolated bare Git source through a temporary Git configuration. They do not change the user's Git configuration, create tags, or add a local-source option to the installer. They cover `main`, `init-work`, a branch name requiring JSON escaping, paths with spaces, standard-input execution, repeated installation, invalid arguments, missing Git, missing branches, an unavailable source, an existing invalid JSON file, symbolic links, help, and the absence of version tags.
-
-These tests exercise Git retrieval locally; they do not prove GitHub connectivity or the README download URL. A separate live test on 2026-11-14 verified downloading the installer from `init-work`, installing that remote branch, and preserving metadata on a second run. These checks were performed on macOS with Bash 3.2. The release command that downloads from `main` and selects a version tag must be verified after merging and publishing the first tag. Linux execution and successful tag selection remain to be verified.
+A live check on 2026-11-14 verified downloading the installer from `init-work`, installing that remote branch, and preserving metadata on a second run. This check was performed on macOS with Bash 3.2. The release command that downloads from `main` and selects a version tag must be verified after merging and publishing the first tag. Linux execution and successful tag selection remain to be verified.
 
 ## Future update direction
 
