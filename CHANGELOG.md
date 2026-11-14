@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [v0.0.2]
 
 - Install a standalone update launcher, agent rules, and release notes in `.tt/`.
 - Add a marked root `AGENTS.md` section without replacing existing instructions.
