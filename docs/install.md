@@ -1,6 +1,6 @@
 # ThesisTrail installer
 
-Status: requirements for the initial implementation. Proposed edge-case behavior is listed separately below. The installer has not been implemented yet.
+Status: initial implementation available in `scripts/install.sh`. Branch installation is covered by local integration tests. Successful tag installation and chronological tag selection will be tested after the first version tag is published; tests do not create tags.
 
 ## Purpose and scope
 
@@ -54,21 +54,40 @@ Only initial installation through the Bash installer is in scope. Updates, autom
 
 ### Dependencies and language
 
-- Require Bash, Git, and a minimal set of standard system utilities.
+- Require Bash 3.2 or newer, Git, and these standard system utilities: `mktemp`, `mkdir`, `rm`, `date`, and `ln`.
+- The README download command also requires `curl`; the installer itself does not use it.
 - Do not require Python, Node.js, `jq`, or package managers to run the installer.
 - Do not install dependencies automatically.
 - Check required utilities before changing files in the user's project.
 - Use English for installer messages and repository content, except `README.ru.md`.
 
-## Proposed edge-case behavior
+## Usage
 
-These implementation proposals have not yet been explicitly agreed:
+Run the script from the destination project directory. The following examples assume the script is stored at `/path/to/install.sh`:
+
+```bash
+bash /path/to/install.sh                     # Most recent vX.Y.Z tag by date
+bash /path/to/install.sh --branch main       # Remote main branch
+bash /path/to/install.sh --branch init-work  # Remote development branch
+bash /path/to/install.sh --tag v0.1.0         # Explicit version tag
+bash /path/to/install.sh --help              # Usage information
+```
+
+For the download-and-run command in the README, the URL selects the installer script, while `--branch init-work` selects the source recorded in the project's metadata. The development command is temporary until the first version tag is available.
+
+## Edge-case behavior
 
 - Treat `--branch` and `--tag` as mutually exclusive. Report unknown arguments or missing values and exit with a nonzero code.
+- Reject repeated selectors and invalid Git branch names. Explicit tags must match `vX.Y.Z`.
 - If a selected tag or branch is missing, fail without selecting a different source.
 - If no matching tags exist, fail without falling back to `main`.
+- If tag dates are equal, select the first tag in Git's ascending ref-name order.
 - On a network error, fail without substituting a local checkout.
 - Preserve unrelated project files. An existing metadata file is left untouched regardless of its contents.
+- Reject a symbolic link or a regular file at `.tt/` rather than writing through it.
+- Check arguments, dependencies, and an existing metadata path before creating `.tt/`. Errors after retrieval begins may leave an empty `.tt/` directory; no completed metadata is written.
+- Remove temporary Git data and temporary JSON files on exit. Publish the completed JSON through a hard link in `.tt/` so an existing metadata file is not overwritten.
+- Return `0` on successful initialization or help, and a nonzero exit code on an error or an existing installation. Updates are not supported.
 
 ## Acceptance criteria
 
@@ -81,8 +100,21 @@ Verify that:
 5. The installer works on macOS and Linux, including destination paths containing spaces, with the agreed dependencies.
 6. Missing dependencies are detected before project files are changed.
 7. An existing `.tt/thesis-trail.json` stops installation without prompting or changing any project files, in both interactive and noninteractive runs.
-8. Invalid arguments, missing sources, and network failures follow the specified edge-case rules once those proposals are finalized.
+8. Invalid arguments, missing sources, and retrieval failures follow the specified edge-case rules.
 9. No update, automatic update check, confirmation bypass, or force-overwrite mode is implemented.
+
+## Verification
+
+```bash
+bash -n scripts/install.sh
+python3 tests/test_install.py
+```
+
+Python 3 is used only by the development test runner, not by the installer. The runner preserves test projects and logs in a new run directory under `../thesis-trail-install-tests/`; use `--work-dir PATH` to choose another parent directory.
+
+Tests redirect the installer's production Git URL to an isolated bare Git source through a temporary Git configuration. They do not change the user's Git configuration, create tags, or add a local-source option to the installer. They cover `main`, `init-work`, a branch name requiring JSON escaping, paths with spaces, standard-input execution, repeated installation, invalid arguments, missing Git, missing branches, an unavailable source, an existing invalid JSON file, symbolic links, help, and the absence of version tags.
+
+These tests exercise Git retrieval locally; they do not prove GitHub connectivity or the README download URL. The current run was verified on macOS with Bash 3.2. Linux execution and successful tag selection remain to be verified.
 
 ## Future update direction
 
