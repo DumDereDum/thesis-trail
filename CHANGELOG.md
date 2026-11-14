@@ -8,6 +8,8 @@
 - On first installation into an existing project, move original materials into a unique ignored `.backup/` snapshot and record pending preparation in `.tt/setup-state`.
 - Make restoring the project from the retained snapshot the agent's first task; preserve original paths, use existing specifications, and create or reuse the topic card.
 - Print the appropriate next-step prompt after initial installation; preserve student documents, backups, and setup state during updates.
+- Organize local reference documents into articles, books, regulations, guidelines, and other materials, with a Git-visible catalog and mirrored Markdown cards.
+- During backup restoration, preserve a technical `materials/` directory and choose a separate document library before adding ignore rules; answer document questions from relevant originals.
 
 ## [v0.0.2]
 

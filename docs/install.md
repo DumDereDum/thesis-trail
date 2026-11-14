@@ -16,6 +16,8 @@ Existing root instructions are preserved; a missing `AGENTS.md` is created. No s
 
 Revisions implementing the [student workflow](student-workflow.md) include an inline topic-card template in the agent rules and a root hook covering student work as well as maintenance. On first installation, [project setup](project-setup.md) moves existing root materials, including `docs/`, into a unique `.backup/project-.../`, excluding `.git`, `.tt`, and `.backup`. Root instructions and ignore rules are preserved in regenerated `AGENTS.md` and `.gitignore`; the latter excludes `/.backup/`. Runtime `.tt/setup-state` identifies the pending restoration and snapshot. The agent's first task is to copy materials back from the retained snapshot and create or reuse the topic card. Empty projects get the ordinary topic-discussion prompt without a backup or setup state. Installation does not start an agent or create a new card. Updates do not archive materials or print initial onboarding. This workflow is not included in `v0.0.2`.
 
+The installed rules also describe the [material library](material-library.md). The agent selects its location after inspecting existing and archived paths, adds only the chosen library's ignore rule, and maintains the catalog and mirrored cards during requested work. The installer does not create this student metadata or add `/materials/` blindly: that name may belong to code or rendering assets. All library paths, descriptions, and original files remain outside release-update management.
+
 `v0.0.1` predates the updater. Selecting that revision retains its metadata-only behavior; files from different revisions are never mixed. See [bootstrapping an older installation](update.md#bootstrapping-v001).
 
 ## Source selection

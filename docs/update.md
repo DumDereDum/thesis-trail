@@ -70,6 +70,8 @@ Managed kit files are replaced; users keep their own instructions outside them a
 
 The student-owned `docs/topic.md` described in the [student workflow](student-workflow.md) is outside the update-managed set. Initial installation can archive it under the [project setup protocol](project-setup.md), which also creates `.tt/setup-state` and adds a backup exclusion to `.gitignore`. Updates must leave topic cards, snapshots, setup state, and ignore files untouched. Updating the agent rules and root hook must not trigger initial archival or print the first-installation onboarding prompt.
 
+The [material library](material-library.md) originals, catalog, mirrored document cards, and selected root are also student-owned. Delivering new library instructions does not authorize moving documents, regenerating summaries, or changing ignore rules during an update; those actions belong to requested preparation or document work.
+
 Reject unsafe paths, malformed metadata, unsupported schemas, and malformed/duplicate root instruction markers. `.tt/.update-lock` excludes concurrent checks/applications. A stale lock after an unhandled termination requires manual inspection/removal.
 
 Prepare files and backups before replacement; rename staged files into place, metadata last. Restore originals after an ordinary failure or handled signal. This is not a cross-file atomic transaction or power-loss recovery. If restoration fails, retain backups and report their path. Clean up temporary releases and successful transaction backups.

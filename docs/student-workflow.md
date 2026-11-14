@@ -9,6 +9,7 @@ Clients must read the root `AGENTS.md` and its linked `.tt/agent-rules.md`, or t
 ## Files and ownership
 
 - `.tt/agent-rules.md` contains the student workflow and an inline topic-card template, alongside maintenance instructions. There is no separately installed template file.
+- The [material library](material-library.md) keeps local reference originals in an ignored library and descriptions in `docs/materials.md` and mirrored `docs/materials/` cards. These are created during requested agent work, not by the installer. Inspect existing and archived directory purposes before adding any library ignore rule.
 - `docs/topic.md` is the default student-owned topic card. First installation archives an existing card with the other materials, without changing its contents; the agent restores it during initial setup. The installer and release applier do not create a new card. Updates leave cards at their working paths untouched.
 - The agent creates the card during a student-requested topic discussion and updates it as part of the student's task. Existing documents and custom fields are preserved. If the project already identifies an equivalent card elsewhere, use that location without creating a duplicate; if the location or file purpose is ambiguous, clarify before writing.
 - Do not follow a symlink or replace a directory, unreadable file, or unrelated document at the intended card path. Continue the student's task and clarify a suitable location.
