@@ -1,80 +1,90 @@
-# Установщик ThesisTrail
+# ThesisTrail installer
 
-Состояние: требования к первой реализации; открытые решения перечислены в конце документа. Установщик пока не реализован.
+Status: requirements for the initial implementation. Open decisions are listed below. The installer has not been implemented yet.
 
-## Назначение и границы
+## Purpose and scope
 
-`scripts/install.sh` устанавливает комплект ThesisTrail из GitHub в проект пользователя на macOS и Linux. Репозиторий-источник: `https://github.com/DumDereDum/thesis-trail`.
+`scripts/install.sh` retrieves ThesisTrail from GitHub and initializes its metadata in the user's project on macOS and Linux. The source repository is `https://github.com/DumDereDum/thesis-trail`.
 
-На этом этапе разрабатывается только Bash-установщик. Установщик для Windows не входит в текущую работу.
+This iteration creates only `.tt/thesis-trail.json`. It does not install the repository snapshot, skills, templates, or scripts in the project, and does not create learning documents or client-specific directories. Rules for installing those files will be specified separately.
 
-## Согласованные требования
+Only the Bash installer is in scope. A Windows installer is deferred.
 
-### Источник и выбор версии
+## Agreed requirements
 
-- Установщик получает файлы из удалённого Git-репозитория. Локальная копия комплекта не является источником установки в этой реализации.
-- Без аргументов выбирается последний тег. Точное правило выбора последнего тега необходимо уточнить.
-- `--branch main` выбирает ветку `main`; `--branch <имя>` позволяет выбрать другую ветку.
-- `--tag <тег>` выбирает конкретный тег.
-- При установке по тегу версия определяется именем тега: например, `v0.1.0` соответствует `version: "0.1.0"`.
-- При установке из ветки `version` и `tag` равны `null`. Источник фиксируется именем ветки и полным SHA коммита.
+### Source and version selection
 
-### Папка проекта и метаданные
+- Retrieve the selected source from the remote Git repository. A local checkout is not an installation source in this iteration.
+- With no arguments, select the most recent tag by date among tags matching `vX.Y.Z`, where each component is numeric. Do not select by the greatest version number or apply an additional stability classification.
+- The exact Git date used to compare tags remains an open decision.
+- `--branch main` selects `main`; `--branch <name>` selects another branch.
+- `--tag <tag>` selects an explicit tag.
+- For a tag installation, derive the version from the tag name: `v0.1.0` produces `version: "0.1.0"`.
+- For a branch installation, `version` and `tag` are `null`. Record the branch name and full commit SHA.
 
-- Папкой назначения является текущая рабочая папка, из которой пользователь запускает установщик.
-- В начале установки создаётся служебная папка `.tt/` в проекте пользователя.
-- Метаданные установки хранятся в `.tt/install.json`.
-- Папка `.tt/` предназначена для файлов комплекта. Заполненные учебные документы хранятся отдельно, в `docs/thesis-trail/` проекта пользователя.
-- Метаданные содержат следующие поля:
+### Project directory and metadata
 
-| Поле | Значение |
+- The current working directory is the destination project, regardless of where the installer script is stored.
+- Create the project's `.tt/` directory at the beginning of installation, after dependency checks.
+- Store metadata in `.tt/thesis-trail.json`. This is the only file created in `.tt/` by this iteration.
+- The JSON file is intended for broader ThesisTrail project information, not just installation data. Additional information may be specified later.
+- Retrieve remote sources in a temporary location rather than storing a repository checkout in `.tt/`.
+- Record the following fields:
+
+| Field | Meaning |
 | --- | --- |
-| `schema_version` | Версия формата JSON; начальное значение — `1` |
-| `repository` | Адрес репозитория-источника |
-| `version` | Версия из выбранного тега; `null` для установки из ветки |
-| `tag` | Выбранный тег; `null` для установки из ветки |
-| `branch` | Выбранная ветка; `null` для установки по тегу |
-| `commit` | Полный SHA установленного коммита |
-| `installed_at` | Время первой успешной установки, UTC в формате ISO 8601 |
-| `updated_at` | Время последней успешной установки или обновления, UTC в формате ISO 8601 |
+| `schema_version` | JSON format version, initially `1` |
+| `repository` | Source repository URL |
+| `version` | Version derived from the selected tag; `null` for a branch installation |
+| `tag` | Selected tag; `null` for a branch installation |
+| `branch` | Selected branch; `null` for a tag installation |
+| `commit` | Full SHA of the selected commit |
+| `installed_at` | First successful initialization time, UTC in ISO 8601 format |
+| `updated_at` | Most recent successful initialization or update time, UTC in ISO 8601 format |
 
-- При первой успешной установке `installed_at` и `updated_at` совпадают. При обновлении `installed_at` сохраняется.
-- Поле `status` не используется.
-- Метаданные завершённой установки записываются после успешного размещения файлов. Ошибка установки не должна записывать новое время успешного обновления.
+- On the first successful run, `installed_at` and `updated_at` are equal. Preserve `installed_at` on updates.
+- Do not include a `status` field.
+- Write the completed metadata only after successful retrieval and source resolution. A failed attempt must not record a new successful update time.
 
-### Зависимости
+### Existing installation
 
-- Требуется минимум внешних зависимостей: Bash и обычные системные утилиты.
-- Нельзя требовать Python, Node.js, `jq` или пакетные менеджеры для выполнения установки.
-- Установщик не устанавливает зависимости автоматически.
-- Необходимые утилиты проверяются до изменения файлов проекта пользователя.
-- Допустимость обязательной зависимости от Git пока не согласована.
+- If an installation already exists, offer to update it and request confirmation before applying the update.
+- An update requires the user's consent.
+- The behavior without an interactive terminal remains an open decision.
 
-## Предлагаемые правила обработки ошибок
+### Dependencies and language
 
-Следующие правила предлагаются для первой реализации и пока не считаются согласованными:
+- Require Bash, Git, and a minimal set of standard system utilities.
+- Do not require Python, Node.js, `jq`, or package managers to run the installer.
+- Do not install dependencies automatically.
+- Check required utilities before changing files in the user's project.
+- Use English for installer messages and repository content, except `README.ru.md`.
 
-- `--branch` и `--tag` взаимно исключаются. Неизвестный аргумент или отсутствующее значение приводят к понятному сообщению и ненулевому коду завершения.
-- Если тег или ветка не найдены, установка завершается с ошибкой без перехода на другой источник.
-- Если подходящих тегов нет, запуск без аргументов завершается с ошибкой без перехода на `main`.
-- При ошибке сети установщик завершается с ошибкой без использования локальной копии.
-- Пользовательские документы и файлы вне установленного комплекта не перезаписываются.
+## Proposed edge-case behavior
 
-## Критерии приёмки
+These implementation proposals have not yet been explicitly agreed:
 
-После уточнения открытых решений проверяем:
+- Treat `--branch` and `--tag` as mutually exclusive. Report unknown arguments or missing values and exit with a nonzero code.
+- If a selected tag or branch is missing, fail without selecting a different source.
+- If no matching tags exist, fail without falling back to `main`.
+- On a network error, fail without substituting a local checkout.
+- If the selected source and commit already match the recorded installation, report that it is current and leave the JSON unchanged.
+- Preserve unrelated project files and any additional metadata fields introduced in future iterations.
 
-1. Запуск без аргументов выбирает тег по согласованному правилу; версия и SHA в JSON соответствуют полученному исходному коду.
-2. Установка из `main`, другой ветки и явно указанного тега получает именно выбранный источник.
-3. `.tt/install.json` является корректным JSON, содержит согласованные поля и не содержит `status`.
-4. Установка работает в пути с пробелами на macOS и Linux с согласованным набором утилит.
-5. Отсутствующие зависимости обнаруживаются до изменения файлов проекта.
-6. Неизвестные аргументы, отсутствие выбранного источника и сетевые ошибки обрабатываются по согласованным правилам.
-7. Повторный запуск обрабатывается по согласованному правилу и сохраняет пользовательские документы.
+## Acceptance criteria
 
-## Открытые решения
+After resolving the open decisions, verify that:
 
-1. Требовать Git или получать архив через `curl` и `tar`? Предложение: Git, чтобы получать файлы и SHA без дополнительного разбора API.
-2. Последний тег — максимальная стабильная версия `vX.Y.Z` или самый свежий тег по дате? Предложение: максимальная стабильная версия.
-3. При существующей установке предлагать обновление с подтверждением или пока останавливать повторный запуск?
-4. Что размещать в `.tt/`: весь снимок репозитория без `.git` или выбранные файлы комплекта? Нужно также уточнить, входит ли размещение навыков в папках ИИ-клиентов в первую реализацию установщика.
+1. A run without arguments selects the most recent matching tag by the agreed date rule, even when another tag has a greater version number.
+2. Explicit selection of `main`, another branch, or a tag resolves the requested remote source.
+3. `.tt/thesis-trail.json` is valid JSON with the agreed fields, matching version and commit values, and no `status` field.
+4. `.tt/` contains only `thesis-trail.json` after a first successful run; no client directories, learning documents, or repository snapshot are installed.
+5. The installer works on macOS and Linux, including destination paths containing spaces, with the agreed dependencies.
+6. Missing dependencies are detected before project files are changed.
+7. Existing installations trigger an update offer; declining leaves the metadata unchanged. An accepted update preserves `installed_at` and records the new source and `updated_at`.
+8. Invalid arguments, missing sources, network failures, and noninteractive runs follow the agreed rules.
+
+## Open decisions
+
+1. Tag dates: proposed use of Git's `creatordate`, which uses the tagger date for annotated tags and the committer date for lightweight tags. See the [Git reference](https://git-scm.com/docs/git-for-each-ref).
+2. Noninteractive updates: proposed refusal to update without confirmation, with an explicit `--yes` option to grant consent for automated runs.

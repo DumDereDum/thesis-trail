@@ -1,17 +1,21 @@
-# Правила работы с ThesisTrail
+# Working on ThesisTrail
 
-## Разработка по спецификации (SDD)
+## Language
 
-- Храни требования и критерии приёмки в `docs/`.
-- Перед реализацией описывай ожидаемое поведение в спецификации соответствующего компонента. При изменении поведения обновляй спецификацию.
-- Отделяй согласованные требования от предложений и открытых вопросов.
-- Реализуй поведение по спецификации и проверяй его по критериям приёмки.
+- Use English for repository content, including documentation, code comments, and script messages. `README.ru.md` is the Russian-language exception.
 
-## Установщик
+## Specification-driven development (SDD)
 
-- `scripts/install.sh` должен иметь минимум внешних зависимостей.
-- Используй Bash и стандартные системные утилиты. Выбирай простое решение с меньшим числом зависимостей.
-- Не добавляй зависимости от Python, Node.js, `jq` или пакетных менеджеров для выполнения установки.
-- Не устанавливай дополнительные зависимости автоматически.
-- Требования к внешним утилитам должны быть явно указаны и проверены до изменения файлов проекта пользователя.
-- Установщик предназначен для macOS и Linux; учитывай различия стандартных утилит этих систем.
+- Keep requirements and acceptance criteria in `docs/`.
+- Describe expected behavior in the relevant specification before implementing it. Update the specification when behavior changes.
+- Distinguish agreed requirements from proposals and open questions.
+- Implement according to the specification and verify against its acceptance criteria.
+
+## Installer
+
+- Keep external dependencies in `scripts/install.sh` to a minimum.
+- Use Bash, Git, and standard system utilities. Prefer simple solutions with fewer dependencies.
+- Do not require Python, Node.js, `jq`, or package managers to run the installer.
+- Do not install dependencies automatically.
+- Document required external utilities and check for them before changing files in the user's project.
+- Support macOS and Linux, accounting for differences between their standard utilities.
