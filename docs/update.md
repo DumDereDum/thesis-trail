@@ -56,7 +56,7 @@ The applier validates arguments, metadata, and supported source versions before 
 
 ## Managed files and transactions
 
-Only these destinations are managed:
+Updates manage only these destinations:
 
 ```text
 .tt/update.sh
@@ -68,7 +68,7 @@ the marked ThesisTrail section of AGENTS.md
 
 Managed kit files are replaced; users keep their own instructions outside them and the marked block. Preserve unrelated files and unknown JSON metadata fields, including nested values. Preserve `installed_at`; change version/reference, commit, and `updated_at` only after successful application. Do not add a `status` field.
 
-The student-owned `docs/topic.md` described in the [student workflow](student-workflow.md) is outside the managed set. Updating the agent rules and root hook must not create, rewrite, or migrate a topic card or print the first-installation onboarding prompt.
+The student-owned `docs/topic.md` described in the [student workflow](student-workflow.md) is outside the update-managed set. Initial installation can archive it under the [project setup protocol](project-setup.md), which also creates `.tt/setup-state` and adds a backup exclusion to `.gitignore`. Updates must leave topic cards, snapshots, setup state, and ignore files untouched. Updating the agent rules and root hook must not trigger initial archival or print the first-installation onboarding prompt.
 
 Reject unsafe paths, malformed metadata, unsupported schemas, and malformed/duplicate root instruction markers. `.tt/.update-lock` excludes concurrent checks/applications. A stale lock after an unhandled termination requires manual inspection/removal.
 

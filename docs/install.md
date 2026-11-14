@@ -14,7 +14,7 @@ Releases containing the [update protocol](update.md) install:
 
 Existing root instructions are preserved; a missing `AGENTS.md` is created. No skills, separate template files, student documents, or client-specific directories are installed. Clients that do not read `AGENTS.md` need their own instruction configuration.
 
-Revisions implementing the [student workflow](student-workflow.md) include an inline topic-card template in the agent rules and a root hook covering student work as well as maintenance. Successful initial installation prints a prompt to open the project in an agent that reads `AGENTS.md` and ask to start coursework or a thesis. The agent helps create the student-owned `docs/topic.md` during that conversation. Installation does not create `docs/`, change an existing card, or start an agent. Updates do not print the initial-installation prompt. This workflow is not included in `v0.0.2`.
+Revisions implementing the [student workflow](student-workflow.md) include an inline topic-card template in the agent rules and a root hook covering student work as well as maintenance. On first installation, [project setup](project-setup.md) moves existing root materials, including `docs/`, into a unique `.backup/project-.../`, excluding `.git`, `.tt`, and `.backup`. Root instructions and ignore rules are preserved in regenerated `AGENTS.md` and `.gitignore`; the latter excludes `/.backup/`. Runtime `.tt/setup-state` identifies the pending restoration and snapshot. The agent's first task is to copy materials back from the retained snapshot and create or reuse the topic card. Empty projects get the ordinary topic-discussion prompt without a backup or setup state. Installation does not start an agent or create a new card. Updates do not archive materials or print initial onboarding. This workflow is not included in `v0.0.2`.
 
 `v0.0.1` predates the updater. Selecting that revision retains its metadata-only behavior; files from different revisions are never mixed. See [bootstrapping an older installation](update.md#bootstrapping-v001).
 
@@ -51,6 +51,7 @@ First installation timestamps are equal. There is no `status` field. Existing me
 - Reject a symlink or non-directory at `.tt/`; managed files and `AGENTS.md` must be regular files, not symlinks or directories.
 - Stop if `.tt/thesis-trail.json` exists. No installer update, overwrite, or confirmation-bypass flags.
 - Stage files and back up existing managed destinations before applying. Restore them on an ordinary application failure or handled signal. If restoration fails, retain and report the backup directory.
+- For initial archival, also validate `.backup` and `.gitignore` before moving materials. Keep the successful snapshot; restore archived entries on a handled application failure. Empty `.backup/` may remain after rollback. See [project setup](project-setup.md) for the handoff interval and recovery limits.
 - Remove temporary Git data on exit. A failure may leave an empty `.tt/` directory.
 - Messages and code use English; `README.ru.md` is the documentation exception.
 

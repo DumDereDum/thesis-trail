@@ -5,7 +5,9 @@
 - Guide students through a first topic discussion and a six-field, bilingual topic card in `docs/topic.md`.
 - Reuse existing topic context and update accepted decisions without repeating onboarding or inventing academic details.
 - Include the card template in the agent rules and extend the root `AGENTS.md` hook to cover the student workflow.
-- Print a next-step prompt after initial installation; keep topic cards student-owned and outside installer/update management.
+- On first installation into an existing project, move original materials into a unique ignored `.backup/` snapshot and record pending preparation in `.tt/setup-state`.
+- Make restoring the project from the retained snapshot the agent's first task; preserve original paths, use existing specifications, and create or reuse the topic card.
+- Print the appropriate next-step prompt after initial installation; preserve student documents, backups, and setup state during updates.
 
 ## [v0.0.2]
 

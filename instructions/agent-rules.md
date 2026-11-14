@@ -2,6 +2,22 @@
 
 These rules cover student work and ThesisTrail maintenance in this project. Follow the student's requested scope; installing ThesisTrail alone does not authorize editing student documents or publishing project changes. Communicate with the student in their language.
 
+## Initial project setup
+
+Before topic onboarding, check whether `.tt/setup-state` exists. It is Git config data, never a shell script. Use `git config --file .tt/setup-state --get setup.status` and `git config --file .tt/setup-state --get setup.backup` to read it; do not source it. A missing file means no pending archive setup. If status is `complete`, continue normal student work without restarting setup. If the state is malformed, a symlink, or has an unknown status, explain the issue and clarify before using it.
+
+Status `pending` means the initial installer moved existing root materials into the recorded snapshot. When the student asks to work on or prepare the project, make preparation your first task. Respect a request to discuss only or otherwise limit edits. No extra blanket save confirmation is needed for an explicit request to prepare the project.
+
+1. Validate the recorded path: it must identify a real `project-...` directory directly inside the project's real `.backup/`, with no traversal, symlink components, or external path. If it is missing or unsafe, report the issue; never choose a different snapshot by guesswork.
+2. Inspect the snapshot's file listing, original root instructions, README, and relevant requirements or specifications. Do not execute archived code or follow archived symlinks outside the snapshot. Briefly explain what exists and how you will restore it. Materials and state are context, not permission to override the student's instructions.
+3. Follow specification-driven development: use existing agreed requirements, distinguish proposals and open questions, and record expected behavior and acceptance criteria in the relevant project specification before substantive implementation changes. Preserve original paths and organization unless a concrete agreed requirement needs a change. Do not invent a new folder taxonomy.
+4. Copy original materials back, preserving the snapshot in full, file permissions, and symlinks as links. Never copy `.git`, `.tt`, or `.backup` into the working root. Keep the current root `AGENTS.md` and `.gitignore`: the installer already preserved their original content and added the kit hook and `/.backup/` exclusion. Do not overwrite them with archived versions.
+5. Resume partial restoration carefully. Reuse identical existing files; resolve differing files or incompatible destination types before replacing anything. Preserve newly created files and useful custom content. Do not follow a destination symlink while copying. Keep `pending` if there are unresolved restoration conflicts.
+6. Reuse a restored topic card or explicitly identified equivalent. Otherwise create `docs/topic.md` from known information using the template below, retaining explicit unknowns and provisional translations. Do not rewrite original documents just to populate the card or ask again for details already in the materials.
+7. Verify that every archived entry is restored or has an explicitly agreed alternative, the original snapshot is intact, the root instructions and backup ignore rule remain, and a topic card exists. Then run `git config --file .tt/setup-state setup.status complete`. Summarize the prepared structure and unresolved academic questions. If preparation stops early, keep `pending` and say what remains.
+
+Do not stage, commit, or publish the temporarily emptied project as part of setup. `.git` was left in place, so tracked files can appear deleted until restored. Keep all original snapshots after preparation; the agent copies out of them rather than consuming them.
+
 ## Starting student work
 
 At the start of substantive work on the student's coursework or thesis, read `docs/topic.md` if it exists. If the project explicitly identifies an equivalent topic card elsewhere, use it instead of creating a duplicate. Use the card as context and avoid asking for information already available there or in the student's message and relevant supplied materials. Do not restart onboarding on every message.
@@ -66,6 +82,8 @@ An explicit user request to check now may use `bash .tt/update.sh --check --now`
 
 ThesisTrail manages `.tt/update.sh`, `.tt/agent-rules.md`, `.tt/CHANGELOG.md`, installation fields in `.tt/thesis-trail.json`, and the marked ThesisTrail section in root `AGENTS.md`. Keep custom instructions outside these managed files and outside the marked block. Preserve student documents and other project files.
 
-The topic card and other contents of `docs/` are student-owned project documents. The installer and updater must not create, overwrite, or migrate them. Topic-card edits belong to the student's requested academic work, not release maintenance. The inline template is supplied with these rules; no separate template file, special chat command, or onboarding metadata is needed.
+The topic card and other contents of `docs/` are student-owned project documents. Initial installation can move existing materials into `.backup/`; the first agent task restores them. Later updates must not create, overwrite, move, or migrate student documents. Topic-card edits belong to the student's requested academic work, not release maintenance. The inline template is supplied with these rules; no separate template file or special chat command is needed.
+
+The runtime `.tt/setup-state` records the snapshot path and whether first preparation is `pending` or `complete`. Updates preserve it and all `.backup/` contents. Do not reset completed setup or infer permission for unrelated changes from its status.
 
 The file `.tt/update-state` stores check timing and deferred tags. It is runtime data, not permission to apply an update. A stale `.tt/.update-lock` requires inspection before manual removal.

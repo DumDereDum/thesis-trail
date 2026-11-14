@@ -2,14 +2,14 @@
 
 ## Scope
 
-ThesisTrail connects an AI agent to a small, persistent topic card for coursework or a thesis. Installation supplies instructions; the student starts the conversation in their agent client. No agent runs automatically, and there are no special chat commands or onboarding state fields.
+ThesisTrail connects an AI agent to a small, persistent topic card for coursework or a thesis. Installation supplies instructions; the student starts the conversation in their agent client. No agent runs automatically, and there are no special chat commands. When first installing into a nonempty project, [initial project setup](project-setup.md) archives materials and records pending setup in `.tt/setup-state`.
 
 Clients must read the root `AGENTS.md` and its linked `.tt/agent-rules.md`, or the student must configure their client to read those instructions. Release checks and explicit update consent continue to follow [the update specification](update.md).
 
 ## Files and ownership
 
 - `.tt/agent-rules.md` contains the student workflow and an inline topic-card template, alongside maintenance instructions. There is no separately installed template file.
-- `docs/topic.md` is the default student-owned topic card. The installer and release applier neither create `docs/` nor create, rewrite, or migrate the card. Existing cards remain untouched by installation and updates.
+- `docs/topic.md` is the default student-owned topic card. First installation archives an existing card with the other materials, without changing its contents; the agent restores it during initial setup. The installer and release applier do not create a new card. Updates leave cards at their working paths untouched.
 - The agent creates the card during a student-requested topic discussion and updates it as part of the student's task. Existing documents and custom fields are preserved. If the project already identifies an equivalent card elsewhere, use that location without creating a duplicate; if the location or file purpose is ambiguous, clarify before writing.
 - Do not follow a symlink or replace a directory, unreadable file, or unrelated document at the intended card path. Continue the student's task and clarify a suitable location.
 
@@ -32,6 +32,8 @@ The installed instructions provide an English template. Write the student's card
 
 ## Conversation behavior
 
+Before normal topic onboarding, follow pending [project setup](project-setup.md), if recorded. Restore existing materials and reuse their context before asking for information or creating a duplicate card. A completed setup does not repeat on later sessions or releases.
+
 ### First discussion without a card
 
 1. Recognize a request to start, formulate, or organize the student's work. Use the current message and relevant materials already supplied before asking questions.
@@ -50,7 +52,7 @@ Update relevant fields after the student accepts a change or reports a new decis
 
 ## Initial-installation handoff
 
-After a successful initial protocol installation, print an English next-step message directing the student to open the project in an AI agent that reads `AGENTS.md` and ask to start coursework or a thesis. Explain that the agent will help create `docs/topic.md` during the conversation. Do not show first-install onboarding after an update, a same-release no-op, or a failed application. The metadata-only `v0.0.1` release retains its original behavior.
+After a successful initial protocol installation, print an English next-step message directing the student to open the project in an AI agent that reads `AGENTS.md`. For an archived project, show the backup location and ask the student to request preparation of the project from the backup. For an empty project, ask them to start coursework or a thesis and explain that the agent will help create `docs/topic.md` during the conversation. Do not show first-install onboarding after an update, a same-release no-op, or a failed application. Published `v0.0.1` and `v0.0.2` retain their original behavior.
 
 ## Acceptance criteria
 
@@ -58,7 +60,7 @@ Technical checks in disposable projects must verify:
 
 - Installation supplies the workflow instructions and a root hook covering both the student workflow and release/update consent.
 - Initial installation prints the handoff but creates no `docs/` or card.
-- Installing into a project with a card preserves its bytes, permissions, and modification time, along with unrelated project files and root instructions.
+- Installing into a project with a card archives it with its bytes, permissions, and modification time preserved, along with other project materials. Original root instructions remain active in the regenerated root hook file.
 - Updating a `v0.0.2` installation replaces its maintenance-only instructions and hook with the new workflow while preserving the card, original installation time, and unknown metadata fields. The update does not print initial onboarding.
 - Syntax remains compatible with Bash 3.2 and paths containing spaces; failures and same-release no-ops do not print onboarding.
 
@@ -74,5 +76,7 @@ Review the installed instructions against these four conversation scenarios. The
 ## Verification
 
 On 2026-11-14, installation and update handling passed six disposable-project checks on macOS with Bash 3.2.57, including topic-card preservation and the initial-installation handoff. The checks used the real installer, the `v0.0.2` launcher, and the current applier against local Git fixtures; no production refs were changed. The temporary test harness is not included in the repository. Individual Bash syntax checks and `git diff --check` also passed.
+
+That run preceded initial archival. Verification of the current backup-and-restore handoff is recorded in [project setup verification](project-setup.md#verification).
 
 The four conversation scenarios above were reviewed against the instructions. File-handling checks do not establish an AI client's conversational behavior; a student pilot in an actual client remains a separate manual check. Linux execution remains unverified.
