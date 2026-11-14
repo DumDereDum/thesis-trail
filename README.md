@@ -6,10 +6,10 @@ AI instructions and templates to help students plan, review, and defend coursewo
 
 ## Installation
 
-Run in your project directory. Until the first version tag is available, install from `init-work`. Requires Bash, Git, and curl.
+Run in your project directory to install the most recent version tag by date. Requires Bash, Git, and curl.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DumDereDum/thesis-trail/init-work/scripts/install.sh | bash -s -- --branch init-work
+curl -fsSL https://raw.githubusercontent.com/DumDereDum/thesis-trail/main/scripts/install.sh | bash
 ```
 
 [Installation details](docs/install.md).

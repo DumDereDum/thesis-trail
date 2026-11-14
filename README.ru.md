@@ -6,10 +6,10 @@
 
 ## Установка
 
-Запустите команду в папке своего проекта. До появления первого тега версии установка выполняется из `init-work`. Нужны Bash, Git и curl.
+Запустите команду в папке своего проекта для установки из самого свежего по дате тега версии. Нужны Bash, Git и curl.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DumDereDum/thesis-trail/init-work/scripts/install.sh | bash -s -- --branch init-work
+curl -fsSL https://raw.githubusercontent.com/DumDereDum/thesis-trail/main/scripts/install.sh | bash
 ```
 
 [Подробности установки](docs/install.md).

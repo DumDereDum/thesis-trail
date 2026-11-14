@@ -73,7 +73,7 @@ bash /path/to/install.sh --tag v0.1.0         # Explicit version tag
 bash /path/to/install.sh --help              # Usage information
 ```
 
-For the download-and-run command in the README, the URL selects the installer script, while `--branch init-work` selects the source recorded in the project's metadata. The development command is temporary until the first version tag is available.
+The download-and-run command in the README retrieves the installer script from `main`. It passes no arguments, so the installer selects the most recent matching version tag by date. At least one published `vX.Y.Z` tag is required.
 
 ## Edge-case behavior
 
@@ -114,7 +114,7 @@ Python 3 is used only by the development test runner, not by the installer. The 
 
 Tests redirect the installer's production Git URL to an isolated bare Git source through a temporary Git configuration. They do not change the user's Git configuration, create tags, or add a local-source option to the installer. They cover `main`, `init-work`, a branch name requiring JSON escaping, paths with spaces, standard-input execution, repeated installation, invalid arguments, missing Git, missing branches, an unavailable source, an existing invalid JSON file, symbolic links, help, and the absence of version tags.
 
-These tests exercise Git retrieval locally; they do not prove GitHub connectivity or the README download URL. The current run was verified on macOS with Bash 3.2. Linux execution and successful tag selection remain to be verified.
+These tests exercise Git retrieval locally; they do not prove GitHub connectivity or the README download URL. A separate live test on 2026-11-14 verified downloading the installer from `init-work`, installing that remote branch, and preserving metadata on a second run. These checks were performed on macOS with Bash 3.2. The release command that downloads from `main` and selects a version tag must be verified after merging and publishing the first tag. Linux execution and successful tag selection remain to be verified.
 
 ## Future update direction
 
