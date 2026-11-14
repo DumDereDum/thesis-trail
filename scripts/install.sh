@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Initialize ThesisTrail metadata from the remote repository.
+# Install ThesisTrail from the selected remote revision.
 set -euo pipefail
 
 repository='https://github.com/DumDereDum/thesis-trail.git'
@@ -63,7 +63,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-for utility in git mktemp mkdir rm date ln; do
+for utility in git mktemp mkdir rm date ln awk cp mv chmod cmp; do
     command -v "$utility" >/dev/null 2>&1 || fail "Required command not found: $utility."
 done
 
@@ -122,6 +122,22 @@ else
     git -C "$source_directory" fetch --quiet --depth=1 --no-tags origin "$remote_reference" || fail "Could not retrieve $selection '$reference'. Check the reference and network access."
     commit=$(git -C "$source_directory" rev-parse --verify 'FETCH_HEAD^{commit}') || fail 'The selected reference does not point to a commit.'
 fi
+
+# Releases carry their own application and migration rules. Do not install
+# updater files from main when the user selected a different revision.
+if git -C "$source_directory" cat-file -e "$commit:scripts/apply-update.sh" 2>/dev/null; then
+    release_directory="$temporary_directory/release"
+    mkdir -- "$release_directory"
+    git --git-dir="$source_directory" --work-tree="$release_directory" checkout "$commit" -- .
+    [[ -f "$release_directory/scripts/apply-update.sh" && ! -L "$release_directory/scripts/apply-update.sh" ]] || fail 'The release applier is missing or unsafe.'
+    "$BASH" "$release_directory/scripts/apply-update.sh" --project "$project_directory" \
+        --from-version none "--$selection" "$reference" --commit "$commit"
+    exit 0
+fi
+if git -C "$source_directory" cat-file -e "$commit:scripts/update.sh" 2>/dev/null; then
+    fail 'The selected revision contains a launcher but no release applier.'
+fi
+printf 'The selected revision predates the updater; installing metadata only.\n'
 
 version_json='null'
 tag_json='null'
