@@ -10,6 +10,8 @@
 - Print the appropriate next-step prompt after initial installation; preserve student documents, backups, and setup state during updates.
 - Organize local reference documents into articles, books, regulations, guidelines, and other materials, with a Git-visible catalog and mirrored Markdown cards.
 - During backup restoration, preserve a technical `materials/` directory and choose a separate document library before adding ignore rules; answer document questions from relevant originals.
+- Support explicit topic-based literature searches, accessible full-text downloads, and card/catalog completion with verified source metadata, relevance, and honest access/reading status.
+- Report new or missing library files at session start without automatically changing files, metadata, ignore rules, or downloading replacements.
 
 ## [v0.0.2]
 
