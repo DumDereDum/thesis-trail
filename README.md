@@ -84,6 +84,6 @@ instructions/
     └── README.md              # Domain instruction catalog
 ```
 
-Subject directories, such as `domains/ml/`, are added as instructions become available.
+Subject directories, such as `domains/ml/`, are added as instructions become available. [How to add an area](docs/instructions.md#adding-domain-instructions).
 
 In a student's project, instructions live in `.tt/`, linked from a marked block in `AGENTS.md`. `.tt/.gitignore` excludes backups and local state while keeping instructions available to Git. This repository's `docs/` contains ThesisTrail development specifications and is not installed into student projects.
