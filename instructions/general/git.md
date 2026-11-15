@@ -1,10 +1,8 @@
-# Git guidelines for student projects
+# Git instructions for student projects
 
 ## When to apply
 
-Use these guidelines when working with a student's Git repository, preparing a commit, or publishing changes. Apply them to the current task without repeating a checklist on every message. Repository and course requirements provide additional context; clarify a conflicting rule before taking the affected action.
-
-These are student-project guidelines. Maintenance of ThesisTrail itself follows its root `AGENTS.md`. This document is not yet included in the installed agent instructions.
+Use these instructions when working with a student's Git repository, preparing a commit, or publishing changes. Apply them to the current task without repeating a checklist on every message. Repository and course requirements provide additional context; clarify a conflicting rule before taking the affected action.
 
 ## Agreed requirements
 

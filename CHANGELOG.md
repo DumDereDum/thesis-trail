@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Group agent instructions by general practices, research, maintenance, and future domains, with a short entry point selecting relevant modules. Install and update the complete instruction tree while retaining the existing entry path.
 - Frame topics and major research decisions around the problem, meaningful alternatives, and justified choices; reuse accepted decisions for routine tasks without repeating research analysis or adding mandatory documents.
 - Guide students through a first topic discussion and a six-field, bilingual topic card in `docs/topic.md`.
 - Reuse existing topic context and update accepted decisions without repeating onboarding or inventing academic details.

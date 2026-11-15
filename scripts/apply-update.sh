@@ -23,8 +23,35 @@ archive_relative=''
 archive_entries=()
 archive_count=0
 archive_attempted=0
-metadata_index=4
-managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.tt/thesis-trail.json')
+instructions_index=4
+instructions_replacement_started=0
+metadata_index=5
+managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.tt/instructions' '.tt/thesis-trail.json')
+
+validate_instruction_tree() {
+    local entry
+    [[ -d "$1" && ! -L "$1" ]] || tt_fail "Expected a real instruction directory: $1."
+    for entry in "$1"/* "$1"/.[!.]* "$1"/..?*; do
+        [[ -e "$entry" || -L "$entry" ]] || continue
+        [[ ! -L "$entry" ]] || tt_fail "Symbolic links are not supported in instructions: $entry."
+        if [[ -d "$entry" ]]; then
+            validate_instruction_tree "$entry"
+        else
+            [[ -f "$entry" ]] || tt_fail "Expected a regular instruction file: $entry."
+        fi
+    done
+}
+
+validate_destinations() {
+    local path
+    for path in "${managed_paths[@]}"; do
+        if [[ "$path" == .tt/instructions ]]; then
+            [[ ! -L "$tt_project/$path" && ( ! -e "$tt_project/$path" || -d "$tt_project/$path" ) ]] || tt_fail '.tt/instructions must be a real directory.'
+        else
+            tt_regular_or_absent "$tt_project/$path"
+        fi
+    done
+}
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -57,12 +84,17 @@ fi
 
 tt_project=$(cd -P -- "$tt_project" && pwd)
 tt_project_paths
-for source_file in scripts/update.sh scripts/apply-update.sh instructions/agent-rules.md CHANGELOG.md; do
+for source_file in scripts/update.sh scripts/apply-update.sh instructions/agent-rules.md \
+    instructions/general/git.md instructions/general/reproducibility.md instructions/general/documentation.md \
+    instructions/research/topic.md instructions/research/materials.md \
+    instructions/maintenance/project-setup.md instructions/maintenance/updates.md instructions/domains/README.md CHANGELOG.md; do
     [[ -f "$release_directory/$source_file" && ! -L "$release_directory/$source_file" ]] || tt_fail "Missing or unsafe release file: $source_file."
 done
-for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+validate_instruction_tree "$release_directory/instructions"
+validate_destinations
 if [[ "$from_version" == none ]]; then
     [[ ! -e "$tt_metadata" ]] || tt_fail 'ThesisTrail metadata already exists. Use the updater instead.'
+    [[ ! -e "$tt_project/.tt/instructions" ]] || tt_fail 'Initial installation would overwrite .tt/instructions.'
     # Do not overwrite unrelated files when initializing a project.
     for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md .tt/setup-state; do
         tt_regular_or_absent "$tt_project/$path"
@@ -76,7 +108,17 @@ apply_cleanup() {
     if [[ "$application_started" == 1 && "$application_succeeded" == 0 ]]; then
         for ((index=changed_count-1; index>=0; index--)); do
             destination="$tt_project/${managed_paths[$index]}"
-            if [[ -f "$transaction/backup/$index" ]]; then
+            if [[ "$index" == "$instructions_index" ]]; then
+                if [[ -d "$transaction/backup/$index" ]]; then
+                    if rm -rf -- "$destination"; then
+                        mv -- "$transaction/backup/$index" "$destination" || restore_failed=1
+                    else
+                        restore_failed=1
+                    fi
+                elif [[ "$instructions_replacement_started" == 1 ]]; then
+                    rm -rf -- "$destination" || restore_failed=1
+                fi
+            elif [[ -f "$transaction/backup/$index" ]]; then
                 cp -p -- "$transaction/backup/$index" "$destination" || restore_failed=1
             else
                 rm -f -- "$destination" || restore_failed=1
@@ -128,9 +170,10 @@ trap 'exit 143' TERM
 mkdir -p -- "$tt_service"
 tt_acquire_lock
 # Validate again under the lock, including the expected source version.
-for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+validate_destinations
 if [[ "$from_version" == none ]]; then
     [[ ! -e "$tt_metadata" ]] || tt_fail 'Metadata appeared during installation.'
+    [[ ! -e "$tt_project/.tt/instructions" ]] || tt_fail 'Initial installation would overwrite .tt/instructions.'
     [[ "$release_directory" != "$tt_project" && "$release_directory" != "$tt_project/"* ]] || tt_fail 'Initial installation requires release staging outside the project. Use a TMPDIR outside the project.'
     # Recheck initial-only conflicts under the lock before touching materials.
     for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md .tt/setup-state; do
@@ -147,13 +190,20 @@ if [[ "$from_version" == none ]]; then
     done
     shopt -u dotglob nullglob
     if [[ "$archive_count" -gt 0 ]]; then
-        managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.gitignore' '.tt/setup-state' '.tt/thesis-trail.json')
-        metadata_index=6
-        for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+        managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.gitignore' '.tt/setup-state' '.tt/instructions' '.tt/thesis-trail.json')
+        instructions_index=6
+        metadata_index=7
+        validate_destinations
     fi
 else
     tt_read_metadata
     [[ "$tt_current_version" == "$from_version" ]] || tt_fail 'The installed version changed. Check again before updating.'
+    if installed_layout=$(tt_json get "$tt_metadata" instructions_layout); then
+        [[ "$installed_layout" == 1 ]] || tt_fail "Unsupported instruction layout: $installed_layout."
+    else
+        [[ $? == 3 ]] || tt_fail 'Could not read instruction layout metadata.'
+        [[ ! -e "$tt_project/.tt/instructions" ]] || tt_fail 'Legacy upgrade would overwrite unrelated .tt/instructions.'
+    fi
     if [[ "$tt_current_tag" == "$reference" ]]; then
         [[ "$tt_current_commit" == "$commit" ]] || tt_fail 'The installed tag points to a different commit.'
         printf 'Already installed: %s.\n' "$reference"
@@ -164,8 +214,10 @@ fi
 transaction=$(mktemp -d "$tt_service/.apply.XXXXXXXX")
 mkdir -- "$transaction/new" "$transaction/backup"
 cp -- "$release_directory/scripts/update.sh" "$transaction/new/0"
-cp -- "$release_directory/instructions/agent-rules.md" "$transaction/new/1"
+printf '%s\n' '# ThesisTrail instructions' '' \
+    'Read [instructions/agent-rules.md](instructions/agent-rules.md) and follow its module-selection, setup, release-check, and update-consent instructions.' > "$transaction/new/1"
 cp -- "$release_directory/CHANGELOG.md" "$transaction/new/2"
+cp -Rp -- "$release_directory/instructions" "$transaction/new/$instructions_index"
 chmod 755 "$transaction/new/0"
 chmod 644 "$transaction/new/1" "$transaction/new/2"
 
@@ -223,6 +275,7 @@ else
     tt_json_set "$metadata_staged" commit "$(tt_json_string "$commit")"
     tt_json_set "$metadata_staged" updated_at "$(tt_json_string "$timestamp")"
 fi
+tt_json_set "$metadata_staged" instructions_layout 1
 tt_json validate "$metadata_staged" || tt_fail 'Prepared metadata is invalid.'
 
 if [[ "$archive_count" -gt 0 ]]; then
@@ -242,7 +295,7 @@ fi
 
 for ((index=0; index<${#managed_paths[@]}; index++)); do
     destination="$tt_project/${managed_paths[$index]}"
-    if [[ -f "$destination" ]]; then cp -p -- "$destination" "$transaction/backup/$index"; fi
+    if [[ "$index" != "$instructions_index" && -f "$destination" ]]; then cp -p -- "$destination" "$transaction/backup/$index"; fi
 done
 application_started=1
 for ((index=0; index<archive_count; index++)); do
@@ -254,6 +307,13 @@ done
 for ((index=0; index<${#managed_paths[@]}; index++)); do
     destination="$tt_project/${managed_paths[$index]}"
     changed_count=$((index+1))
+    if [[ "$index" == "$instructions_index" ]]; then
+        # Move the old tree intact so rollback preserves its links and modes.
+        if [[ -d "$destination" ]]; then mv -- "$destination" "$transaction/backup/$index"; fi
+        instructions_replacement_started=1
+        mv -- "$transaction/new/$index" "$destination"
+        continue
+    fi
     if [[ -f "$destination" ]] && cmp -s -- "$transaction/new/$index" "$destination"; then
         continue
     fi

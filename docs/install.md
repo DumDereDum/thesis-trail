@@ -8,13 +8,14 @@ Releases containing the [update protocol](update.md) install:
 
 - `.tt/thesis-trail.json`: installation/project metadata.
 - `.tt/update.sh`: the standalone launcher from that revision.
-- `.tt/agent-rules.md`: agent instructions.
+- `.tt/agent-rules.md`: the stable entry point for agent instructions.
+- `.tt/instructions/`: the complete thematic instruction tree in releases implementing [the instruction layout](instructions.md).
 - `.tt/CHANGELOG.md`: that revision's release notes.
 - A marked ThesisTrail section in root `AGENTS.md` linking to the rules.
 
 Existing root instructions are preserved; a missing `AGENTS.md` is created. No skills, separate template files, student documents, or client-specific directories are installed. Clients that do not read `AGENTS.md` need their own instruction configuration.
 
-Revisions implementing the [student workflow](student-workflow.md) include an inline topic-card template in the agent rules and a root hook covering student work as well as maintenance. On first installation, [project setup](project-setup.md) moves existing root materials, including `docs/`, into a unique `.backup/project-.../`, excluding `.git`, `.tt`, and `.backup`. Root instructions and ignore rules are preserved in regenerated `AGENTS.md` and `.gitignore`; the latter excludes `/.backup/`. Runtime `.tt/setup-state` identifies the pending restoration and snapshot. The agent's first task is to copy materials back from the retained snapshot and create or reuse the topic card. Empty projects get the ordinary topic-discussion prompt without a backup or setup state. Installation does not start an agent or create a new card. Updates do not archive materials or print initial onboarding. This workflow is not included in `v0.0.2`.
+Revisions implementing the [student workflow](student-workflow.md) include a topic-card template in the instructions and a root hook covering student work as well as maintenance. With the thematic layout, the template is in `.tt/instructions/research/topic.md`, reached through `.tt/agent-rules.md`. On first installation, [project setup](project-setup.md) moves existing root materials, including `docs/`, into a unique `.backup/project-.../`, excluding `.git`, `.tt`, and `.backup`. Root instructions and ignore rules are preserved in regenerated `AGENTS.md` and `.gitignore`; the latter excludes `/.backup/`. Runtime `.tt/setup-state` identifies the pending restoration and snapshot. The agent's first task is to copy materials back from the retained snapshot and create or reuse the topic card. Empty projects get the ordinary topic-discussion prompt without a backup or setup state. Installation does not start an agent or create a new card. Updates do not archive materials or print initial onboarding. This workflow is not included in `v0.0.2`.
 
 The installed rules also describe the [material library](material-library.md). The agent selects its location after inspecting existing and archived paths, adds only the chosen library's ignore rule, and maintains the catalog and mirrored cards during requested work. The installer does not create this student metadata or add `/materials/` blindly: that name may belong to code or rendering assets. All library paths, descriptions, and original files remain outside release-update management.
 
@@ -35,6 +36,7 @@ The installed rules also describe the [material library](material-library.md). T
 | Field | Meaning |
 | --- | --- |
 | `schema_version` | Metadata schema, initially `1` |
+| `instructions_layout` | `1` for the managed thematic tree; absent in legacy installations |
 | `repository` | Canonical source repository URL |
 | `version` | Tag without `v`, or `null` for a branch |
 | `tag` | Selected tag, or `null` for a branch |

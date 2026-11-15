@@ -1,6 +1,8 @@
-# Student workflow and topic card
+# Student workflow specification
 
 ## Scope
+
+This document specifies ThesisTrail behavior and acceptance criteria for maintainers. The agent-facing workflow and template live in [the topic instructions](../instructions/research/topic.md) and are delivered through the [instruction layout](instructions.md).
 
 ThesisTrail connects an AI agent to a small, persistent topic card for coursework or a thesis. Installation supplies instructions; the student starts the conversation in their agent client. No agent runs automatically, and there are no special chat commands. When first installing into a nonempty project, [initial project setup](project-setup.md) archives materials and records pending setup in `.tt/setup-state`.
 
@@ -8,7 +10,7 @@ Clients must read the root `AGENTS.md` and its linked `.tt/agent-rules.md`, or t
 
 ## Files and ownership
 
-- `.tt/agent-rules.md` contains the student workflow and an inline topic-card template, alongside maintenance instructions. There is no separately installed template file.
+- `.tt/agent-rules.md` forwards to the thematic entry point at `.tt/instructions/agent-rules.md`. It selects the student workflow and inline topic-card template in `.tt/instructions/research/topic.md`, and the relevant general, material, domain, or maintenance instructions. See the [instruction layout](instructions.md). There is no separately installed template file.
 - The [material library](material-library.md) keeps local reference originals in an ignored library and descriptions in `docs/materials.md` and mirrored `docs/materials/` cards. These are created during requested agent work, not by the installer. Inspect existing and archived directory purposes before adding any library ignore rule.
 - `docs/topic.md` is the default student-owned topic card. First installation archives an existing card with the other materials, without changing its contents; the agent restores it during initial setup. The installer and release applier do not create a new card. Updates leave cards at their working paths untouched.
 - The agent creates the card during a student-requested topic discussion and updates it as part of the student's task. Existing documents and custom fields are preserved. If the project already identifies an equivalent card elsewhere, use that location without creating a duplicate; if the location or file purpose is ambiguous, clarify before writing.
@@ -31,33 +33,18 @@ Keep six fields:
 
 The installed instructions provide an English template. Write the student's card in their language, retaining both Russian and English title fields. These generated student documents are not repository source files. Unknown values are explicitly marked as not yet specified in the student's language; a partial card is valid. Do not infer the study year, degree level, field of study, supervisor approval, or substantive project scope from a title alone. Goals, tasks, hypotheses, deadlines, and progress tracking are outside this initial card's required structure.
 
-## Conversation behavior
+## Behavior contract
 
-Before normal topic onboarding, follow pending [project setup](project-setup.md), if recorded. Restore existing materials and reuse their context before asking for information or creating a duplicate card. A completed setup does not repeat on later sessions or releases.
+The topic instructions implement the following observable behavior:
 
-### Research framing and major decisions
+- Pending project preparation precedes onboarding; completed preparation is not repeated.
+- Known context and existing cards are reused. Missing information remains explicit, and a concrete request is not blocked by an onboarding questionnaire.
+- Topic formation and consequential research choices consider the problem, meaningful alternatives, and grounds for selection. Routine tasks reuse accepted decisions. Significant new evidence or a change to the research question, scope, core approach, or evaluation method can trigger reconsideration.
+- A proposed wording, translation, or approach remains distinct from an accepted decision. Accepted changes preserve unrelated card content and bilingual consistency.
+- A requested topic-organization task can create a partial card; discussion-only work changes no project documents. No additional research file or card fields are required.
+- Student metadata uses the student's language. Neither a saved card nor an agent proposal implies supervisor approval.
 
-When formulating the topic or making a decision that determines the direction of the work, help the student identify the problem and its context, distinguish supporting evidence from assumptions, consider meaningful alternative solutions, and explain the basis for choosing an approach. Where comparison is part of the work, formulate the research question and evaluation criteria before drawing conclusions. A suitable solution is relative to the stated conditions and criteria; do not assume that a new implementation or a universally best method is required. Adapt the depth and form of investigation to the actual academic requirements.
-
-Discuss consequential choices with the student before treating an agent proposal as an accepted decision. Reuse accepted decisions from the conversation and existing project documents as context for subsequent tasks. Revisit them when significant new evidence challenges their basis or a proposed change affects the research question, scope, core approach, or evaluation method. Explain what prompted reconsideration and which decision needs the student's input.
-
-Match the depth of discussion and documentation to the significance of the decision. Routine tasks within the accepted direction, such as fixing a button, implementing an agreed data loader, or formatting a table, do not restart problem analysis, alternative comparison, or topic onboarding. A concrete request must not be blocked by a mandatory research questionnaire. When saving is within the requested scope, keep useful reasoning in relevant existing project documents; this principle adds no mandatory document, topic-card field, or approval step for every action. Discussion-only requests remain in the conversation.
-
-### First discussion without a card
-
-1. Recognize a request to start, formulate, or organize the student's work. Use the current message and relevant materials already supplied before asking questions.
-2. Ask only a few missing questions at a time. An incomplete card must not prevent useful work or force a questionnaire before an unrelated concrete request, such as reviewing an introduction.
-3. Help with title wording, an English translation, and a short description. Label suggestions and provisional translations clearly. Do not invent facts, requirements, supervisor decisions, sources, or results.
-4. When the topic discussion provides useful content, create `docs/topic.md` with the known fields and explicit unknowns. A request to organize the topic authorizes this ordinary document edit; no separate installation approval or full-card confirmation is required. If the student only requests discussion or asks not to save, keep suggestions in the conversation.
-5. Briefly report the saved path and suggest one relevant next step. Do not imply that saving the card means supervisor approval.
-
-### Existing card
-
-Read the card at the start of substantive student work. Use its context instead of asking for known information again; do not reread or restart onboarding on every message. Work on the student's requested task. Preserve useful existing content and do not normalize or rewrite the card merely because its formatting differs from the template.
-
-### Changes to the topic
-
-Update relevant fields after the student accepts a change or reports a new decision, including a supervisor's decision. An alternative merely proposed by the agent is not a replacement for the current wording. If a new message conflicts with the card without clearly accepting a change, clarify the discrepancy. When the Russian title changes, review the English wording and description for consistency; do not replace an explicitly approved translation with an unapproved one. Briefly state what changed.
+Detailed conversation steps belong to the topic instructions. The acceptance scenarios below exercise this contract without duplicating that procedure here.
 
 ## Initial-installation handoff
 

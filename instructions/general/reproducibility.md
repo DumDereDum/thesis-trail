@@ -1,12 +1,10 @@
-# Reproducibility guidelines for student projects
+# Reproducibility instructions for student projects
 
 ## When to apply
 
 Apply the relevant sections to running a student's software and repeating research experiments. The goal is for another person to obtain the required inputs, follow working instructions, and check the stated result under the documented conditions. Use the project's actual academic and technical requirements.
 
 Maintain reproducibility as the project develops. Update the relevant instructions when behavior, dependencies, data, or commands change; do not repeat the full review for every minor action or require complete reproduction before every commit. At significant milestones, check the main scenario and report gaps. Before final submission, verify the complete main scenario, including any experiments supporting the reported conclusions, or explicitly identify what could not be reproduced.
-
-These are student-project guidelines. They do not add dependencies or CI to ThesisTrail itself. This document is not yet included in the installed agent instructions.
 
 ## Agreed requirements
 
@@ -27,7 +25,7 @@ These are student-project guidelines. They do not add dependencies or CI to Thes
 
 - Provide an example configuration without credentials or other secrets. Explain required parameters, where values come from, and reasonable defaults where possible.
 - State which settings affect the result and how to supply them. Do not rely on unexplained values in the student's local environment or absolute paths specific to their machine.
-- Keep actual secrets outside version control, following the [Git guidelines](git.md).
+- Keep actual secrets outside version control, following the [Git instructions](git.md).
 
 ### Data and other inputs
 
@@ -35,7 +33,7 @@ These are student-project guidelines. They do not add dependencies or CI to Thes
 - Preserve enough information to identify the inputs used for a reported result. If an upstream source can change, record a stable identifier or checksum when available and useful.
 - For restricted or unavailable inputs, state the access requirements and the resulting reproduction limitation. Do not claim full reproduction if a required input is missing.
 - A small example or substitute dataset can make a demonstration useful, but is not mandatory for every restricted dataset. Distinguish a demonstration on substitute inputs from reproduction of the original experiment.
-- Respect existing storage and ignore rules. These guidelines do not require putting all data or large files in Git; see the [material-library rules](material-library.md) for reference documents.
+- Respect existing storage and ignore rules. These instructions do not require putting all data or large files in Git; see the [reference-material instructions](../research/materials.md) for reference documents.
 
 ### External services and resources
 
@@ -62,7 +60,7 @@ These are student-project guidelines. They do not add dependencies or CI to Thes
 - For a project with code, provide a simple CI workflow using the project's hosting or CI service. Reuse an existing suitable workflow where possible. Configure it to check proposed code changes, for example on branch pushes and pull requests.
 - Start with a small, relevant automated check: a linter, a formatter in check mode, a syntax check, or another lightweight check appropriate to the technology. Existing fast tests can also run there. Do not choose a check merely to produce a passing job.
 - Use the declared runtime and dependency installation procedure. Document how to run the same checks locally and make a failing check fail the job.
-- Keep the baseline runnable without Docker or a container build. Containers are not required by these guidelines; retain an existing project dependency on them only when the project itself needs it.
+- Keep the baseline runnable without Docker or a container build. Containers are not required by these instructions; retain an existing project dependency on them only when the project itself needs it.
 - Do not require the CI job to repeat long experiments or access paid services, restricted datasets, or special hardware. Use a suitable lightweight check and describe what still needs separate verification.
 - A passing lint or syntax job does not prove that the application runs, that all supported environments work, or that research results were reproduced. Security scanning, deployment, and other advanced checks are outside this document's baseline and will be addressed separately.
 

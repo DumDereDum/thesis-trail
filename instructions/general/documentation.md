@@ -1,10 +1,8 @@
-# Documentation guidelines for student projects
+# Documentation instructions for student projects
 
 ## When to apply
 
-Apply these guidelines when creating or changing a student's README or other project documentation. Write for someone encountering the project for the first time, including a supervisor, reviewer, or future developer. Match the detail to the reader's task and the significance of the change.
-
-These are student-project guidelines. Maintenance of ThesisTrail itself follows its root `AGENTS.md`. This document is not yet included in the installed agent instructions.
+Apply these instructions when creating or changing a student's README or other project documentation. Write for someone encountering the project for the first time, including a supervisor, reviewer, or future developer. Match the detail to the reader's task and the significance of the change.
 
 ## Agreed requirements
 
@@ -41,7 +39,7 @@ These are student-project guidelines. Maintenance of ThesisTrail itself follows 
 
 ## Additional recommendations
 
-- Keep the quick start focused on one representative scenario. Link to environment-specific instructions and full reproduction procedures as described in the [reproducibility guidelines](reproducibility.md).
+- Keep the quick start focused on one representative scenario. Link to environment-specific instructions and full reproduction procedures as described in the [reproducibility instructions](reproducibility.md).
 - When moving details out of the README, preserve useful content and update links together. Avoid replacing an informative page with a bare collection of links.
 - Before adding a section, identify the question it answers for the intended reader. If another section already answers it, edit or link to that section instead.
 
@@ -49,7 +47,7 @@ These are student-project guidelines. Maintenance of ThesisTrail itself follows 
 
 Review content for relevance, accuracy, duplication, and scope. Check that commands and described behavior match the project, using the relevant reproducibility checks when execution is needed. Verify local links and assets, then perform the rendered review appropriate to the changes.
 
-Report the files changed and the checks actually performed, distinguishing source/link checks, command execution, and visual inspection. Identify the viewer or platform used for visual inspection and any remaining gaps. Follow the [Git guidelines](git.md) for commits and publication.
+Report the files changed and the checks actually performed, distinguishing source/link checks, command execution, and visual inspection. Identify the viewer or platform used for visual inspection and any remaining gaps. Follow the [Git instructions](git.md) for commits and publication.
 
 Review agent behavior against these scenarios:
 
