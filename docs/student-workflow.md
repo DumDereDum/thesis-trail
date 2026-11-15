@@ -35,6 +35,14 @@ The installed instructions provide an English template. Write the student's card
 
 Before normal topic onboarding, follow pending [project setup](project-setup.md), if recorded. Restore existing materials and reuse their context before asking for information or creating a duplicate card. A completed setup does not repeat on later sessions or releases.
 
+### Research framing and major decisions
+
+When formulating the topic or making a decision that determines the direction of the work, help the student identify the problem and its context, distinguish supporting evidence from assumptions, consider meaningful alternative solutions, and explain the basis for choosing an approach. Where comparison is part of the work, formulate the research question and evaluation criteria before drawing conclusions. A suitable solution is relative to the stated conditions and criteria; do not assume that a new implementation or a universally best method is required. Adapt the depth and form of investigation to the actual academic requirements.
+
+Discuss consequential choices with the student before treating an agent proposal as an accepted decision. Reuse accepted decisions from the conversation and existing project documents as context for subsequent tasks. Revisit them when significant new evidence challenges their basis or a proposed change affects the research question, scope, core approach, or evaluation method. Explain what prompted reconsideration and which decision needs the student's input.
+
+Match the depth of discussion and documentation to the significance of the decision. Routine tasks within the accepted direction, such as fixing a button, implementing an agreed data loader, or formatting a table, do not restart problem analysis, alternative comparison, or topic onboarding. A concrete request must not be blocked by a mandatory research questionnaire. When saving is within the requested scope, keep useful reasoning in relevant existing project documents; this principle adds no mandatory document, topic-card field, or approval step for every action. Discussion-only requests remain in the conversation.
+
 ### First discussion without a card
 
 1. Recognize a request to start, formulate, or organize the student's work. Use the current message and relevant materials already supplied before asking questions.
@@ -65,7 +73,7 @@ Technical checks in disposable projects must verify:
 - Updating a `v0.0.2` installation replaces its maintenance-only instructions and hook with the new workflow while preserving the card, original installation time, and unknown metadata fields. The update does not print initial onboarding.
 - Syntax remains compatible with Bash 3.2 and paths containing spaces; failures and same-release no-ops do not print onboarding.
 
-Review the installed instructions against these four conversation scenarios. These are manual agent acceptance scenarios, not assertions that shell tests prove agent behavior:
+Review the installed instructions against these conversation scenarios. These are manual agent acceptance scenarios, not assertions that shell tests prove agent behavior:
 
 | Scenario | Example student message | Expected behavior |
 | --- | --- | --- |
@@ -73,6 +81,11 @@ Review the installed instructions against these four conversation scenarios. The
 | Partial information | "Third-year bachelor's student in software engineering; I want an equipment tracking system. Let's organize the topic." | Reuse the supplied context; offer provisional wording and translation, keep unknowns explicit, and do not require all fields before saving. |
 | Existing card | "Review my introduction." | Read the card and supplied introduction, review the text, and do not repeat onboarding or silently rewrite the topic. |
 | Accepted change | "My supervisor approved the new title: Equipment Tracking for University Laboratories. Update the card." | Update the relevant wording, review bilingual consistency, preserve unrelated content, and distinguish reported approval from proposed translations. |
+| Topic framing | "Help me formulate a topic about document search." | Explore the problem, context, and meaningful alternatives; help identify a research question and evaluation criteria where relevant, without inventing evidence or requiring a new method. Keep the card partial when needed. |
+| Major decision | "Let's choose the main retrieval approach for the project." | Use existing requirements, discuss alternatives and the basis for selection with the student, and distinguish a recommendation from an accepted choice. |
+| Routine task | "Fix the search button using the agreed design." | Carry out the local task using accepted decisions without restarting research framing, demanding alternatives, or adding a research document or approval step. |
+| New evidence | "Our measurements show that the chosen approach cannot meet the agreed response time." | Explain which assumption or decision is challenged and discuss reconsidering the approach or scope; do not silently replace the accepted direction or invent a new conclusion. |
+| Discussion only | "Let's discuss whether to change the evaluation method; don't edit files." | Discuss the consequential choice and its implications in the conversation without changing the card or creating other documents. |
 
 ## Verification
 
@@ -80,4 +93,4 @@ On 2026-11-14, installation and update handling passed six disposable-project ch
 
 That run preceded initial archival. Verification of the current backup-and-restore handoff is recorded in [project setup verification](project-setup.md#verification).
 
-The four conversation scenarios above were reviewed against the instructions. File-handling checks do not establish an AI client's conversational behavior; a student pilot in an actual client remains a separate manual check. Linux execution remains unverified.
+The original four topic-card conversation scenarios were reviewed against the instructions. File-handling checks do not establish an AI client's conversational behavior; a student pilot in an actual client remains a separate manual check. Linux execution remains unverified.
