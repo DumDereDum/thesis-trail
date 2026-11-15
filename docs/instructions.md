@@ -19,9 +19,10 @@ instructions/
     updates.md
   domains/
     README.md
+    <area>/README.md
 ```
 
-`agent-rules.md` is a short entry point containing common behavioral rules and links with applicability conditions. General instructions cover project practices; research instructions cover topic formation, major research decisions, and sources. Maintenance instructions preserve setup and release behavior. Domain instructions supplement these subjects as relevant content becomes available, for example under `domains/ml/`. Do not create empty domain templates or imply that a planned domain already has instructions.
+`agent-rules.md` is a short entry point containing common behavioral rules and links with applicability conditions. General instructions cover project practices; research instructions cover topic formation, major research decisions, and sources. Maintenance instructions preserve setup and release behavior. Domain instructions provide a starting baseline for technical aspects of student work. The initial collection contains 13 peer areas, each with one short README: web, backend, mobile, games, data-analysis, machine-learning, llm, computer-vision, speech-audio, networks, systems-programming, infrastructure, and security. These are recommendations to develop with instructors, not an official grading rubric.
 
 Read only the modules relevant to the task and session context. Reuse them within the conversation instead of loading the entire collection on every message. Initial setup and release checks retain their existing timing, consent, and ownership rules. A library session check still applies when a library exists and setup is not pending. Domain modules state when they apply, add their specific requirements without copying general rules, and are linked from the domain catalog.
 
@@ -31,16 +32,18 @@ This section is for contributors and repository-maintenance agents. The installe
 
 ### Choose the scope
 
-Group domains by directions and approaches to coursework or thesis work, such as machine learning, web applications, or distributed systems. Add an applied subject area when it has distinct useful requirements. Put technology-specific details within a relevant area when needed; a language or dependency alone does not determine which domain applies.
+Group domains by technical expertise that changes how an aspect of a coursework or thesis is prepared, implemented, or checked. Application sectors such as education, real estate, and transport are project context, not domains in this catalog. Put technology-specific details within a relevant area when needed; a language or dependency alone does not determine which domain applies.
+
+Keep the initial collection flat, without parent-domain inheritance. Web covers browser-facing behavior; backend covers server logic and data even for mobile clients. RAG and LLM agents initially belong to conditional sections of llm; iOS and Android belong to mobile. Several areas can apply to one work. Keep one level by default while there are fewer than 30 areas; reaching 30 prompts a navigation review, not an automatic hierarchy. Add subdomains only when substantial shared guidance and distinct specializations make them more useful than direct links and catalog grouping.
 
 Start from representative student tasks and observed mistakes. Include research methodology, consequential choices, technical practices, and interpretation of results where they affect the quality of work in this area. Keep general Git, reproducibility, documentation, and research-framing rules in their existing modules and link to them.
 
 ### Start small
 
 1. Create `instructions/domains/<area>/README.md` using a short, descriptive lowercase directory name with hyphens where needed.
-2. Put the area's applicability, useful initial instructions, and verification expectations in that file. One substantive README is sufficient; no fixed set of additional files is required.
+2. Put the area's applicability and an important boundary, three to five useful baseline recommendations, and relevant conditional guidance in that file. Include what to demonstrate or check in the recommendations themselves. Aim for a short README, roughly 15–30 lines, without treating the count as a hard limit. No fixed set of additional files is required.
 3. Add thematic Markdown files only for independent subjects worth loading separately. Link every such file directly from the area's README with a short condition for reading it. Use relative links so they also resolve under `.tt/instructions/`.
-4. Add an entry to `instructions/domains/README.md` containing the area name, a short applicability description, and a relative link to its README. Do not list unavailable areas or publish placeholder text, empty directories, author metadata, or course profiles.
+4. Add an entry to `instructions/domains/README.md` containing the area name, a short applicability description, and a relative link to its README. Link related areas with explicit conditions. Do not list unavailable areas or publish placeholder text, empty directories, author metadata, or course profiles. A short README with useful recommendations is sufficient; a title and a promise of future guidance are not the baseline delivered by this collection.
 
 For example, a catalog entry has this form, with the placeholders replaced:
 
@@ -61,24 +64,31 @@ Use the following outline as a starting point, replacing the descriptions with a
 
 State which tasks this covers and an important boundary where it does not apply.
 
-## Instructions
+## Baseline guidance
 
-- Required: a necessary minimum with a concrete expected outcome.
-- If a stated condition holds: the requirement for that case.
-- Recommended: a useful practice that can be adapted to the project.
+- State a useful recommendation and the result to demonstrate or check.
+- Add other recommendations specific to this area's work.
 
-## Verification
+## When relevant
 
-Explain what evidence or result demonstrates that the relevant requirements were met.
+- If a stated condition holds: explain the additional guidance.
+
+## Related areas
+
+Link another area and state when to use it.
 ```
 
-Keep rules concise and specific. Add a reason, example, or checking procedure where it resolves ambiguity; do not require four repeated fields for every rule. Link to primary sources for consequential or changing requirements, without adding a large bibliography by default. Short examples should clarify decisions rather than prescribe a stack, architecture, or research method for every project.
+Keep rules concise and specific. Add a reason, example, or checking procedure where it resolves ambiguity; do not require four repeated fields for every rule. Link to primary sources for consequential or changing requirements, without adding a large bibliography by default. Short examples should clarify decisions rather than prescribe a stack, architecture, or research method for every project. Keep the common status of the starter recommendations in the catalog. Do not turn them or linked external checklists into mandatory academic requirements; label an actual requirement with its applicability and supplied basis when one exists.
 
 Keep the scale of application proportional to the task. A domain module must not require a new report, a full experiment, or renewed research framing for each minor edit. Optional examples, sources, and scripts belong in the area only when they serve a concrete need, with their purpose and any dependencies stated.
 
 ### Selection and review
 
-The agent selects applicable domains from the student's topic and current task, briefly states the selection at first use, and reuses that context. It asks only when ambiguity materially affects the work. Several areas can apply; only relevant instructions are combined, and substantive conflicts are clarified rather than silently resolved by a blanket domain override.
+When starting or planning a student's work, or when asked what is expected, the agent selects areas for the known scope of the whole work, reads their short READMEs, and gives a concise overview of the applicable baseline and conditional expectations. Distinguish confirmed aspects from possibilities; do not invent a stack or method to complete the selection. Installation and repository maintenance alone do not trigger this overview. Pending setup still takes priority. A concrete task is not blocked by an incomplete topic or a full-project questionnaire.
+
+During later tasks, apply only relevant guidance and reuse the established selection. Revisit it when substantive scope changes or the student asks for a review, not for each edit or session. A first concrete task can introduce only the areas relevant to that task. Use existing project documents as context across sessions; no mandatory overview file, topic-card fields, or automatic document edits are added. Save a useful overview in existing student documents only within the requested scope, outside the managed `.tt/` collection.
+
+Several areas can apply; only relevant instructions are combined, and substantive conflicts are clarified rather than silently resolved by a blanket domain override. Related-area links are conditional navigation, not automatic dependencies: do not recursively load their neighbors. Apply data-persistence checks only when the component actually stores state; a stateless service can be checked through its output and failure behavior. Instructors contribute reusable guidance to this source repository. Project-specific agreements belong to student documents outside `.tt/` and remain distinct from the shared baseline.
 
 Before adding or substantially changing an area:
 
@@ -113,6 +123,28 @@ Verify in disposable projects:
 - Injected tree-publication and final-metadata failures restore previous tree contents, permissions, and managed files. An initial-installation failure also restores archived materials.
 - Bash 3.2 syntax, paths containing spaces, relative links, and `git diff --check` pass.
 - A domain containing only its substantive README can be added by editing its folder and the catalog. A later thematic file resolves directly from that README and is delivered without changing installation scripts.
+- The initial 13 areas each contain only a README, are directly reachable from the catalog, and have resolving related-area links in the repository and installed tree. Every README states a boundary and a useful baseline, without requiring a particular stack or implying official grading criteria.
+
+Review the initial baseline against these representative cases:
+
+| Case | Expected selection and guidance |
+| --- | --- |
+| Browser PWA benchmark | Web: target browsers and comparable measurement conditions; n-body input does not automatically create a games or ML task. |
+| Concurrent auction bids or room bookings | Backend: business invariants, conflicting operations, and relevant load; no automatic microservices requirement. |
+| Stateless conversion API | Backend: observable outputs and failures; no invented database or persistent-state checks. Related links do not activate every neighboring area. |
+| Mobile student registration with a server | Mobile and backend: explain client lifecycle and booking behavior early; a later button edit does not restart the overview. |
+| Multiplayer game | Games and backend when a server exists: game state and coordination; using a connection does not itself select networks. |
+| Financial reporting dashboard | Data-analysis, plus web/backend as implemented: traceable metrics and transformations; no automatic ML selection. |
+| ML pair-trading experiment | Machine-learning and data-analysis: time-aware evaluation, leakage checks, and a comparison method. |
+| Corporate RAG or LLM interviewer | LLM systems, with security/backend as relevant: retrieval and answer checks for RAG, action boundaries for agents; training is not mandatory. |
+| GPU object tracking or lidar segmentation | Computer-vision, plus machine-learning when developing/evaluating learned models: modality-specific errors and quality/resource tradeoffs. |
+| Speech recognition or music visualization | Speech-audio: suitable quality checks and recording conditions; music analysis does not automatically imply ML. |
+| FRR/VPP routing or NGFW filtering | Networks, plus security for protection properties: topology, traffic conditions, intended forwarding and isolation. |
+| Python/Java bridge or IDL generator | Systems-programming: types, resource ownership, errors, and interface compatibility; no separate language domain. |
+| CI for an NGFW sandbox | Infrastructure: pipeline failures and artifacts; networks only if traffic behavior is part of the task. |
+| Mobile protected storage or vulnerable-app examples | Security, plus mobile or the relevant implementation area: threat assumptions and scoped verification. |
+| Mobile-stack detector, unspecified AI agents, or an unspecified HSK platform | Clarify only material ambiguity; do not infer mobile runtime, LLMs, or web architecture from keywords. |
+| Existing work, missing topic card, or unrelated routine edit | Reuse available context, help with the task, and avoid new mandatory documents or a repeated onboarding questionnaire. |
 
 Review domain selection against these cases: a clearly applicable task selects the area and relevant modules with a brief first-use notice; later routine edits reuse context without a repeated questionnaire; a materially ambiguous task prompts a focused clarification; unrelated tasks and areas absent from the catalog continue under general instructions without fabricated domain rules. A source review is not an agent-client behavioral test.
 
@@ -120,10 +152,16 @@ Review the entry point for topic formation, routine code edits, documentation ch
 
 ## Verification
 
+The 13-area baseline was reviewed on 2026-11-15. Related-area links were clarified as conditional navigation rather than recursive dependencies, and backend persistence checks were limited to operations that store state. Update guidance now explicitly respects requests that prohibit runtime-state writes.
+
+Seven local installation scenario groups passed through the actual `install.sh` and installed `update.sh`: default installation via stdin, explicit tag and branch selection, populated-project archival and root hooks, repeat-install rejection, destination collisions, release checks and interval handling, and full-tree update with preservation and same-version no-op. Git URL rewriting pointed the unmodified scripts at a temporary local repository with fixture tags. All 22 instruction files matched their source bytes and permissions; 120 repository links and 75 installed instruction links and anchors resolved. Student documents, pending setup state, snapshots, custom ignore rules, and unknown metadata survived updates. Bash syntax and `git diff --check` passed. Test code and logs were kept outside this repository.
+
+Codex CLI 0.167.2 completed six representative student scenarios: mobile/backend planning, a single button-label edit, an ambiguous mobile-stack analysis topic, corporate RAG with access restrictions, a stateless API, and pending-backup restoration. Command traces and answers were reviewed in addition to file snapshots: selected guidance matched the task, discussion-only requests left files unchanged, the routine edit touched only the requested label, and restoration retained the backup and topic content. Two additional runs with stale update timestamps verified that discussion-only and narrowly scoped edits defer maintenance writes under the clarified rule. These are observed runs of one client, not a guarantee of behavior across clients or all prompts. Linux, live publication of this unreleased tree, and rendered-page appearance remain unverified.
+
 The domain-authoring changes on 2026-11-15 passed 150 assertions covering a temporary single-README area, its later expansion with a thematic file, installed and repository links, and Markdown source formatting. The fixture required no installer changes and added no domain to the actual collection. Selection scenarios were reviewed against the instructions; an actual agent-client behavioral trial remains separate.
 
 After adding `.tt/.gitignore` and local backups on 2026-11-15, 385 assertions passed across 18 scenario groups using Bash 3.2.57 and disposable local fixtures. Coverage included preservation of root ignore rules, custom local-ignore blocks, Git exclusions versus trackable assets, installation and legacy upgrades, rollback including ignore-file publication failures, handled signals, and incomplete recovery paths. Both README files were checked for links and source structure; a rendered visual check remains unavailable.
 
 On 2026-11-15, 313 assertions passed across 14 disposable-fixture scenario groups on macOS with Bash 3.2.57. Checks covered empty and populated installation, archival, legacy migrations, full-tree replacement including a nested domain module, same-release no-op, unsafe-source and destination rejection, rollback after tree and metadata failures, handled signals, and retained recovery backups after an injected restoration failure. An approved update also restored a missing managed tree.
 
-The published `v0.0.2` launcher successfully invoked the new applier against a temporary local Git release; the current installer delegated to that release as well. Installed modules matched their source bytes, local Markdown links and anchors resolved, and individual Bash syntax checks passed. Fixtures and verification scripts remained outside the repository. Linux execution, rendered README appearance, and an actual agent-client pilot remain unverified.
+The published `v0.0.2` launcher successfully invoked the new applier against a temporary local Git release; the current installer delegated to that release as well. Installed modules matched their source bytes, local Markdown links and anchors resolved, and individual Bash syntax checks passed. Fixtures and verification scripts remained outside the repository. Those earlier runs did not cover Linux, rendered README appearance, or agent-client behavior; the later domain-baseline checks above report the additional coverage.

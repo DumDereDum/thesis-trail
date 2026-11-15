@@ -18,7 +18,7 @@ Follow the student's requested scope and communicate in their language. Installa
 | [Documentation](general/documentation.md) | Creating or changing a README or other project documentation. |
 | [Topic and research decisions](research/topic.md) | Forming a topic, using its context, or reconsidering a consequential research choice. |
 | [Reference materials](research/materials.md) | Organizing, finding, reading, or citing sources, or checking an existing library. |
-| [Domains](domains/README.md) | Selecting available areas from the topic and task, with a brief first-use notice and clarification of material ambiguity. |
+| [Domains](domains/README.md) | Giving an early overview of relevant recommendations when planning the work; applying selected areas during concrete tasks. |
 
 Read the relevant modules before acting and reuse them during the conversation. Do not load the entire collection or restart research framing for every small task. Domain instructions supplement the general and research instructions; use only modules that exist and actually apply. Clarify substantive conflicts instead of silently replacing an accepted decision or project requirement.
 

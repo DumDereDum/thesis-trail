@@ -90,7 +90,7 @@ A marked root `AGENTS.md` block links to `.tt/agent-rules.md`. Preserve existing
 
 Rules for the agent:
 
-1. At the start of work on the project, run the interval-limited check. Do not check on every message or repeatedly retry an outage.
+1. At the start of work on the project, run the interval-limited check within the user's allowed scope. Let the launcher decide whether to skip; reading the timestamp in `.tt/update-state` is not a substitute for invoking `--check`. If the user forbids all file changes or limits changes to specific files, defer the check because it can write runtime state, and do not claim the installed release is current. Do not check on every message or repeatedly retry an outage.
 2. Explain an available non-dismissed tag, the current/candidate versions, and supplied change notes.
 3. Ask whether to apply that exact tag. A general request to work on the project is not approval to update ThesisTrail.
 4. On refusal/deferral, dismiss the tag. On approval, issue the exact `--apply --tag` command.

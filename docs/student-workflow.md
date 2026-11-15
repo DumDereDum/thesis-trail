@@ -40,6 +40,7 @@ The topic instructions implement the following observable behavior:
 - Pending project preparation precedes onboarding; completed preparation is not repeated.
 - Known context and existing cards are reused. Missing information remains explicit, and a concrete request is not blocked by an onboarding questionnaire.
 - Topic formation and consequential research choices consider the problem, meaningful alternatives, and grounds for selection. Routine tasks reuse accepted decisions. Significant new evidence or a change to the research question, scope, core approach, or evaluation method can trigger reconsideration.
+- Starting or planning the work includes a concise overview of the relevant domain baseline so the student can anticipate expectations. Use known project scope, distinguish conditional guidance and official requirements, and reuse the overview during later tasks. The [domain selection contract](instructions.md#selection-and-review) adds no mandatory document or topic-card fields and does not block concrete tasks with a full-project questionnaire.
 - A proposed wording, translation, or approach remains distinct from an accepted decision. Accepted changes preserve unrelated card content and bilingual consistency.
 - A requested topic-organization task can create a partial card; discussion-only work changes no project documents. No additional research file or card fields are required.
 - Student metadata uses the student's language. Neither a saved card nor an agent proposal implies supervisor approval.

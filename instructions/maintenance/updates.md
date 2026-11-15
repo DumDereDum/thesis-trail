@@ -1,6 +1,8 @@
 # Checking for releases
 
-At the start of work on the project, run `bash .tt/update.sh --check` from the project root. The launcher limits network attempts to once per 24 hours. Do not run it on every message, bypass that interval automatically, or keep retrying a failed network request. No check happens while an agent is inactive.
+At the start of work on the project, run `bash .tt/update.sh --check` from the project root. The launcher limits network attempts to once per 24 hours. Let it decide whether to skip; inspecting `.tt/update-state` yourself does not replace this command. Do not run it on every message, bypass that interval automatically, or keep retrying a failed network request. No check happens while an agent is inactive.
+
+Respect explicit limits on file changes. If the user forbids all changes or allows edits only to specified files, defer the check because it can write runtime state. Briefly explain the deferral when relevant, continue the task, and do not claim the installed release is current.
 
 If the check fails, say that the update status could not be checked when relevant, then continue the user's task where possible. A failed or skipped check is not proof that the installed version is current.
 

@@ -2,8 +2,9 @@
 
 ## [Unreleased]
 
-- Define how to add domain areas incrementally, distinguish required and conditional rules from recommendations, and select relevant modules without repeating full reviews for routine tasks.
-- Group agent instructions by general practices, research, maintenance, and future domains, with a short entry point selecting relevant modules. Install and update the complete instruction tree while retaining the existing entry path.
+- Add 13 flat domain areas with short baseline recommendations, applicability boundaries, and conditional links for combining areas.
+- Explain relevant domain expectations early when planning student work, distinguish recommendations from academic requirements, and reuse the selected guidance without repeating full reviews for routine tasks.
+- Group agent instructions by general practices, research, maintenance, and domains, with a short entry point selecting relevant modules. Install and update the complete instruction tree while retaining the existing entry path.
 - Frame topics and major research decisions around the problem, meaningful alternatives, and justified choices; reuse accepted decisions for routine tasks without repeating research analysis or adding mandatory documents.
 - Guide students through a first topic discussion and a six-field, bilingual topic card in `docs/topic.md`.
 - Reuse existing topic context and update accepted decisions without repeating onboarding or inventing academic details.

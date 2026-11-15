@@ -80,10 +80,13 @@ instructions/
 ├── maintenance/               # ThesisTrail maintenance
 │   ├── project-setup.md       # Project preparation from a backup
 │   └── updates.md             # Updates
-└── domains/                   # Subject areas
-    └── README.md              # Domain instruction catalog
+└── domains/                   # 13 technical areas, without subdomains
+    ├── README.md              # Catalog and selection guidance
+    └── <area>/README.md       # Each area's starting recommendations
 ```
 
-Subject directories, such as `domains/ml/`, are added as instructions become available. [How to add an area](docs/instructions.md#adding-domain-instructions).
+The [domain catalog](instructions/domains/README.md) covers 13 areas, including web, backend, mobile, machine learning, networks, and security. Each starts with a short README describing its scope and baseline recommendations. Areas can be combined for one project.
+
+When planning the work, the agent explains the relevant recommendations early; during later tasks it applies only the needed guidance. These starting recommendations can grow with instructor contributions and are not an official grading rubric. [How to extend an area](docs/instructions.md#adding-domain-instructions).
 
 In a student's project, instructions live in `.tt/`, linked from a marked block in `AGENTS.md`. `.tt/.gitignore` excludes backups and local state while keeping instructions available to Git. This repository's `docs/` contains ThesisTrail development specifications and is not installed into student projects.

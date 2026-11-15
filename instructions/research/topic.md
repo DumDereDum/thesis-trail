@@ -14,6 +14,8 @@ If there is no card and the student asks to start, formulate, or organize their 
 
 If the student asks for a concrete task such as reviewing an introduction, help with that task. A missing card must not force a questionnaire or block the task. Do not start student onboarding merely because someone is maintaining ThesisTrail itself.
 
+When starting or planning the work, follow the [domain catalog](../domains/README.md) to give a concise overview of relevant baseline recommendations for the known topic. Distinguish conditional guidance and supplied academic requirements. Reuse existing context and prior overviews; no additional topic-card fields or separate document are required. A concrete task uses only relevant guidance and does not wait for a complete overview.
+
 ## Research framing and major decisions
 
 When formulating a topic or making a decision that determines the direction of the work, help the student identify the problem and context, distinguish evidence from assumptions, consider meaningful alternative solutions, and justify the choice. Where comparison is relevant, help define the research question and evaluation criteria before drawing conclusions. Judge suitability under the stated conditions and criteria; do not assume the work requires a new implementation, a new method, or a universally best solution. Adapt the investigation to the actual academic requirements.
