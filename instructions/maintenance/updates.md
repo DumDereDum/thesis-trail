@@ -16,11 +16,13 @@ An explicit user request to check now may use `bash .tt/update.sh --check --now`
 
 ## File ownership
 
-ThesisTrail manages `.tt/update.sh`, `.tt/agent-rules.md`, the entire `.tt/instructions/` tree, `.tt/CHANGELOG.md`, installation fields in `.tt/thesis-trail.json`, and the marked ThesisTrail section in root `AGENTS.md`. Keep custom instructions outside these managed files and outside the marked block. Preserve student documents and other project files.
+ThesisTrail manages `.tt/update.sh`, `.tt/agent-rules.md`, the entire `.tt/instructions/` tree, `.tt/CHANGELOG.md`, installation fields in `.tt/thesis-trail.json`, and marked ThesisTrail sections in root `AGENTS.md` and `.tt/.gitignore`. Keep custom instructions outside managed files and marked blocks. Preserve custom ignore rules, student documents, and other project files.
 
-The topic card and other contents of `docs/` are student-owned project documents. Initial installation can move existing materials into `.backup/`; the first agent task restores them. Later updates must not create, overwrite, move, or migrate student documents. Topic-card edits belong to the student's requested academic work, not release maintenance. The template is included in the [topic instructions](../research/topic.md#topic-card-template); no separate template file or special chat command is needed.
+The topic card and other contents of `docs/` are student-owned project documents. Initial installation can move materials into local `.tt/backups/`; the first agent task restores every retained material and verifies the working copies. Later updates must not create, overwrite, move, or migrate student documents. Topic-card edits belong to requested academic work, not release maintenance. The template is included in the [topic instructions](../research/topic.md#topic-card-template).
 
-The runtime `.tt/setup-state` records the snapshot path and whether first preparation is `pending` or `complete`. Updates preserve it and all `.backup/` contents. Do not reset completed setup or infer permission for unrelated changes from its status.
+Local `.tt/setup-state` records the snapshot path and whether preparation is `pending` or `complete`. Updates preserve it, `.tt/backups/`, and legacy `.backup/` snapshots without moving or deleting them. Do not reset completed setup or infer permission for unrelated changes from its status. Backup removal requires an explicit student request after verified restoration.
+
+Commit the reusable instructions, updater, version metadata, and `.tt/.gitignore` when requested. Its managed block excludes local backups, setup/update state, locks, and temporary files; do not ignore all of `.tt/`. Preserve user rules outside the block and do not automatically untrack existing files. Ignored backups and state do not accompany a clone.
 
 Reference originals, `docs/materials.md`, mirrored document cards, and their library-only ignore rule are student-owned. The agent maintains them during requested preparation or document work. The installer does not select a reference-library root or add its ignore rule; updates leave these files untouched. Ignored originals are not delivered by cloning the repository; retain known source URLs in the cards so the student can locate them again.
 

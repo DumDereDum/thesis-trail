@@ -31,6 +31,8 @@ For releases implementing this layout, install the entire release's `instruction
 
 Keep all reusable agent assets supplied by ThesisTrail inside `.tt/`, including future skills, templates, and helper files. Do not install them into the student's source directories or client-specific root folders. `AGENTS.md` supplies the root entry hook. Academic documents and implementation files produced during a separately requested student task are project outputs, not installed agent assets. The initial archive behavior remains specified separately in [project setup](project-setup.md).
 
+Install a marked block in `.tt/.gitignore` for local backups, setup/update state, locks, and temporary transactions. The ignore file and release assets are intended for Git; the whole `.tt/` directory is not excluded. Preserve custom rules and the root `.gitignore`, and never automatically untrack existing files. Updates preserve local snapshots and state, including legacy backup locations.
+
 Record `instructions_layout: 1` in installation metadata under the existing metadata schema. Missing layout metadata identifies a legacy installation. Reject unsupported layout values and an existing `.tt/instructions` at initial installation or a legacy upgrade, rather than replacing unrelated files. When layout 1 is already recorded, `.tt/instructions` is a managed directory and is replaced in full, removing obsolete modules. A missing managed tree may be restored by an approved update. Reject symlinks and non-directory destinations for the tree, and reject symlinks or non-regular entries in the release tree before application.
 
 Stage the full tree before replacing managed files. Include its replacement in the existing transaction, publish metadata last, and restore the previous tree and managed files after an ordinary failure or handled signal. Preserve file permissions during rollback. Keep transaction backups when recovery is incomplete. Updates preserve student documents, root custom instructions, unrelated `.tt/` files, setup state, snapshots, unknown metadata, and the original installation time.
@@ -51,6 +53,8 @@ Verify in disposable projects:
 Review the entry point for topic formation, routine code edits, documentation changes, literature work, pending setup, and release checks. Manual review does not establish an agent client's behavioral compliance. Keep README descriptions short and distinguish planned domains from available modules.
 
 ## Verification
+
+After adding `.tt/.gitignore` and local backups on 2026-11-15, 385 assertions passed across 18 scenario groups using Bash 3.2.57 and disposable local fixtures. Coverage included preservation of root ignore rules, custom local-ignore blocks, Git exclusions versus trackable assets, installation and legacy upgrades, rollback including ignore-file publication failures, handled signals, and incomplete recovery paths. Both README files were checked for links and source structure; a rendered visual check remains unavailable.
 
 On 2026-11-15, 313 assertions passed across 14 disposable-fixture scenario groups on macOS with Bash 3.2.57. Checks covered empty and populated installation, archival, legacy migrations, full-tree replacement including a nested domain module, same-release no-op, unsafe-source and destination rejection, rollback after tree and metadata failures, handled signals, and retained recovery backups after an injected restoration failure. An approved update also restored a missing managed tree.
 

@@ -10,16 +10,16 @@ Only initial installation (`--from-version none`) may archive materials. An exis
 
 ## Archive and installation
 
-1. Validate the release, destinations, root instruction markers, and backup location before moving materials. The release staging directory (and the installer's `TMPDIR`) must be outside the project, so the running release is not archived. `.backup` must be absent or a real directory, never a symlink. Existing `AGENTS.md` and `.gitignore` must be regular files when edited.
-2. Collect every root entry, including hidden files, ignored files, directories, and symlinks, except `.git`, `.tt`, and `.backup`. Do not follow symlinks while moving entries. Root `.git` may be a directory or a worktree/submodule pointer file; leave it untouched.
-3. If there are entries, create a unique `.backup/project-UTC_TIMESTAMP.RANDOM/` and move the collected entries into it, preserving their names and contents. Never reuse an existing snapshot. Existing backups and unrelated `.tt/` files remain in place.
-4. Install the kit. Recreate root `AGENTS.md` with the original instructions preserved and the ThesisTrail hook added or replaced. Recreate `.gitignore` with the original content and a final `/.backup/` exclusion. The snapshot retains the original versions of both files.
-5. Write `.tt/setup-state` in Git config format with `setup.status = pending` and `setup.backup = .backup/project-...`. This runtime file is separate from installation metadata. It is created only for an archived project; existing setup state without installation metadata is a conflict requiring inspection.
-6. Publish installation metadata last, then print the snapshot location and direct the student to ask their agent to prepare the project from the backup. An empty project gets the ordinary topic-discussion handoff, without a snapshot or setup-state file.
+1. Validate the release, destinations, instruction and ignore markers, and backup location before moving materials. Release staging and `TMPDIR` must be outside the project. `.tt/backups` must be absent or a real directory, never a symlink. Edited `AGENTS.md` and `.tt/.gitignore` destinations must be regular files.
+2. Collect root entries, including hidden and ignored files, directories, and symlinks, except `.git`, `.tt`, `.gitignore`, and legacy `.backup`. Do not follow symlinks. Root `.git` may be a directory or pointer file. Leave root `.gitignore` byte for byte and attribute for attribute unchanged.
+3. If there are entries, create a unique `.tt/backups/project-UTC_TIMESTAMP.RANDOM/` and move the entries into it, preserving names, bytes, permissions, and modification times. Existing snapshots, legacy `.backup`, and unrelated `.tt/` files remain in place.
+4. Install the kit and regenerate `AGENTS.md`, preserving custom root instructions. Add or update only the marked ThesisTrail block in `.tt/.gitignore`. It excludes `/backups/`, `/setup-state`, `/update-state`, locks, and transaction/temporary files, while allowing instructions, version metadata, the updater, and the ignore file itself to be tracked. Preserve custom ignore rules and reject malformed or duplicate markers before archival.
+5. Write local `.tt/setup-state` in Git config format with `setup.status = pending` and `setup.backup = .tt/backups/project-...`. It is created only for an archived project; conflicting initial state requires inspection.
+6. Publish metadata last. Print the snapshot location, explain that it is local and ignored by Git, and direct the student to request preparation from the backup. State that all materials must be restored and verified before backup removal. An empty project gets the ordinary topic-discussion handoff without a snapshot or setup state.
 
-The installer does not create a topic card, infer a topic, parse academic documents, or run an agent. Existing cards and requirements are archived with the rest of the materials, without content changes. Until the agent restores them, original files are intentionally absent from their former paths, except the regenerated `AGENTS.md` and `.gitignore`. Already tracked files can appear deleted in Git during this interval. An ignore rule excludes new backups from ordinary staging but does not untrack any files already tracked by the student.
+The installer does not create a topic card, infer a topic, parse academic documents, or run an agent. Existing cards and requirements are archived without content changes. Until restoration, original materials are absent from their former paths, except regenerated `AGENTS.md`; root `.gitignore` remains untouched. Already tracked files can appear deleted during this interval. Ignore rules do not untrack files already in Git.
 
-Stage replacements and transaction backups before moving materials. On an ordinary failure or handled signal, restore managed files and move archived entries back to their original paths. Keep the original file contents, permissions, and modification times. Do not overwrite a newly appeared conflicting destination during restoration. Report and retain both the transaction and snapshot if restoration is incomplete. A fully restored failure may leave empty `.tt/` and `.backup/` directories. There is no cross-file atomicity or power-loss recovery; do not rerun installation blindly after an unhandled interruption.
+Stage replacements and transaction backups before moving materials. Ordinary failures and handled signals restore managed files and archived entries with their original attributes. Conflicting recovery destinations are not overwritten. Incomplete recovery retains and reports the transaction and snapshot. A fully restored failure may leave empty `.tt/` directories. There is no cross-file atomicity or power-loss recovery.
 
 ## Agent handoff and state transitions
 
@@ -34,6 +34,8 @@ Stage replacements and transaction backups before moving materials. On an ordina
 
 Completion requires every archived entry to be restored or explicitly accounted for, the snapshot retained, root instructions preserved, and any reference-library metadata consistent with the [library contract](material-library.md). Existing and newly created working files remain protected during partial restoration. Unread reference placeholders can satisfy inventory requirements without fabricated summaries.
 
+Every retained material needs a verified working copy outside the snapshot; an inventory entry alone does not count as restoration. Unresolved files or conflicts keep setup pending. Backup removal is a separate explicit student request after restoration is complete and rechecked; neither setup nor updates delete snapshots automatically. Existing states pointing to legacy `.backup/project-...` remain supported without relocating those snapshots.
+
 Only successful completion changes `setup.status` to `complete`. Interruptions and unresolved conflicts leave it `pending`. Setup does not stage, commit, or publish the temporarily emptied project. A discussion-only request does not trigger restoration writes. The detailed procedure and conflict handling belong to the installed setup instructions.
 
 ## Acceptance criteria
@@ -41,15 +43,19 @@ Only successful completion changes `setup.status` to `complete`. Interruptions a
 Verify in disposable projects without adding a test suite to the repository:
 
 - Initial installation archives visible and hidden files, nested directories, filenames containing spaces, ignored files, symlinks, and an existing topic card; archived bytes and attributes remain unchanged.
-- `.git` directories and pointer files, unrelated `.tt/` files, and older snapshots remain in place. The snapshot is ignored by Git, while old root instructions and ignore rules remain active.
+- `.git` directories and pointer files, root `.gitignore`, unrelated `.tt/` files, and older snapshots remain in place. New snapshots and local state are ignored by `.tt/.gitignore`, while installable assets remain trackable.
 - State references the exact snapshot and is pending. Empty projects create neither a snapshot nor setup state.
-- Repeated installation, unsafe backup/ignore destinations, malformed markers, and conflicting setup state fail without moving materials.
+- Repeated installation, unsafe `.tt/backups` or `.tt/.gitignore` destinations, malformed markers, and conflicting setup state fail without moving materials.
 - Injected archive-move, kit-file replacement, and final-metadata replacement failures restore original materials, modes, and modification times. An incomplete restoration retains and reports recovery paths.
 - Updating a `v0.0.2` installation leaves working materials, setup state, and backups untouched. The updated instructions can resume pending setup but do not create it themselves.
 - Bash 3.2 syntax and execution pass. Review the installed agent instructions for first setup, resuming a partial restore, conflicts, completed setup, and existing topic cards. An actual agent-client pilot remains a separate behavioral check.
 - For a snapshot whose `materials/` contains code or rendering assets, restore it in place without adding `/materials/` to `.gitignore`; route references to an available fallback and preserve existing working references. Keep catalogs/cards and original-to-restored mappings consistent as specified in the [material library](material-library.md).
 
 ## Verification
+
+On 2026-11-15, the revised local-backup layout passed the thematic-installation and recovery checks, plus 41 dedicated local-data assertions. Git checks confirmed that `.tt/backups/`, state, locks, and temporary files are ignored while release assets remain trackable. Root `.gitignore` bytes, mode, and modification time stayed unchanged. Custom local-ignore rules and modes survived installation and updates; malformed markers and unsafe local destinations were rejected before archival. Legacy snapshots were left in place. The handoff explicitly required complete restoration before backup removal.
+
+The following earlier run verified the predecessor layout with root `.backup/`; it is historical coverage, not a claim that the old path is still used for new installations.
 
 On 2026-11-14, 75 assertions passed across ten disposable-source scenarios on macOS with Bash 3.2.57. Checks covered initial archival and standard-input installation, an empty project, hidden/ignored files and symlinks, original attributes, a root Git pointer file, existing snapshots and instructions, a copy-based restoration exercise, pending/completed setup preservation during updates, and application through the published `v0.0.2` launcher. Unsafe destinations and staging inside the project were rejected before archival.
 

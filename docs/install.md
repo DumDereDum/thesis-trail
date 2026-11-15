@@ -11,11 +11,12 @@ Releases containing the [update protocol](update.md) install:
 - `.tt/agent-rules.md`: the stable entry point for agent instructions.
 - `.tt/instructions/`: the complete thematic instruction tree in releases implementing [the instruction layout](instructions.md).
 - `.tt/CHANGELOG.md`: that revision's release notes.
+- `.tt/.gitignore`: a managed block excluding local backups, runtime state, locks, and temporary files while preserving custom rules.
 - A marked ThesisTrail section in root `AGENTS.md` linking to the rules.
 
 Existing root instructions are preserved; a missing `AGENTS.md` is created. No skills, separate template files, student documents, or client-specific directories are installed. Clients that do not read `AGENTS.md` need their own instruction configuration.
 
-Revisions implementing the [student workflow](student-workflow.md) include a topic-card template in the instructions and a root hook covering student work as well as maintenance. With the thematic layout, the template is in `.tt/instructions/research/topic.md`, reached through `.tt/agent-rules.md`. On first installation, [project setup](project-setup.md) moves existing root materials, including `docs/`, into a unique `.backup/project-.../`, excluding `.git`, `.tt`, and `.backup`. Root instructions and ignore rules are preserved in regenerated `AGENTS.md` and `.gitignore`; the latter excludes `/.backup/`. Runtime `.tt/setup-state` identifies the pending restoration and snapshot. The agent's first task is to copy materials back from the retained snapshot and create or reuse the topic card. Empty projects get the ordinary topic-discussion prompt without a backup or setup state. Installation does not start an agent or create a new card. Updates do not archive materials or print initial onboarding. This workflow is not included in `v0.0.2`.
+Revisions implementing the [student workflow](student-workflow.md) include the topic-card template in `.tt/instructions/research/topic.md`, reached through `.tt/agent-rules.md`. On first installation, [project setup](project-setup.md) moves existing materials into a unique ignored `.tt/backups/project-.../`, leaving `.git`, `.tt`, root `.gitignore`, and legacy `.backup` in place. Only the root `AGENTS.md` receives the kit hook. Local `.tt/setup-state` identifies pending restoration. The handoff states that the agent must restore every retained material before the backup can be removed. Empty projects get the topic-discussion prompt without a snapshot. Installation does not run an agent or create a card; updates do not archive materials or repeat onboarding. These workflows are not included in `v0.0.2`.
 
 The installed rules also describe the [material library](material-library.md). The agent selects its location after inspecting existing and archived paths, adds only the chosen library's ignore rule, and maintains the catalog and mirrored cards during requested work. The installer does not create this student metadata or add `/materials/` blindly: that name may belong to code or rendering assets. All library paths, descriptions, and original files remain outside release-update management.
 
@@ -55,7 +56,7 @@ First installation timestamps are equal. There is no `status` field. Existing me
 - Reject a symlink or non-directory at `.tt/`; managed files and `AGENTS.md` must be regular files, not symlinks or directories.
 - Stop if `.tt/thesis-trail.json` exists. No installer update, overwrite, or confirmation-bypass flags.
 - Stage files and back up existing managed destinations before applying. Restore them on an ordinary application failure or handled signal. If restoration fails, retain and report the backup directory.
-- For initial archival, also validate `.backup` and `.gitignore` before moving materials. Keep the successful snapshot; restore archived entries on a handled application failure. Empty `.backup/` may remain after rollback. See [project setup](project-setup.md) for the handoff interval and recovery limits.
+- For initial archival, validate `.tt/backups`, `.tt/.gitignore`, and its markers before moving materials. Keep successful snapshots; restore originals on a handled application failure. Root `.gitignore` is never edited. See [project setup](project-setup.md) for the handoff interval and recovery limits.
 - Remove temporary Git data on exit. A failure may leave an empty `.tt/` directory.
 - Messages and code use English; `README.ru.md` is the documentation exception.
 

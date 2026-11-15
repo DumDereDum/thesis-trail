@@ -21,7 +21,7 @@ usage() {
         'Initialize ThesisTrail in the current directory.' \
         'Without arguments, use the most recent vX.Y.Z tag by date.' \
         'Existing installations are left unchanged.' \
-        'Releases with project setup archive existing materials under .backup/.' \
+        'Releases with project setup archive existing materials under .tt/backups/.' \
         '' \
         'Options:' \
         '  --branch NAME  Install from a remote branch.' \

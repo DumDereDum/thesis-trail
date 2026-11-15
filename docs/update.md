@@ -62,6 +62,7 @@ Updates manage only these destinations:
 .tt/update.sh
 .tt/agent-rules.md
 .tt/instructions/ (for releases implementing the thematic layout)
+.tt/.gitignore (the marked ThesisTrail block)
 .tt/CHANGELOG.md
 .tt/thesis-trail.json
 the marked ThesisTrail section of AGENTS.md
@@ -71,7 +72,9 @@ Managed kit files are replaced; users keep their own instructions outside them a
 
 The [thematic layout](instructions.md) keeps `.tt/agent-rules.md` as a forwarding entry and delivers all modules under `.tt/instructions/`. Its applier records `instructions_layout: 1`, rejects unrelated legacy directory collisions, and replaces the managed tree in full as part of the transaction. Removed modules do not remain active after an update. The stable launcher-facing protocol is unchanged.
 
-The student-owned `docs/topic.md` described in the [student workflow](student-workflow.md) is outside the update-managed set. Initial installation can archive it under the [project setup protocol](project-setup.md), which also creates `.tt/setup-state` and adds a backup exclusion to `.gitignore`. Updates must leave topic cards, snapshots, setup state, and ignore files untouched. Updating the agent rules and root hook must not trigger initial archival or print the first-installation onboarding prompt.
+The local-ignore block excludes `.tt/backups/`, runtime state, locks, and transaction files. Updates preserve custom ignore rules, root `.gitignore`, local backups and state, and legacy `.backup/`. They do not move or delete snapshots, remove already tracked local data from the index, or mark pending preparation complete.
+
+The student-owned `docs/topic.md` described in the [student workflow](student-workflow.md) is outside the update-managed set. Initial installation can archive it under the [project setup protocol](project-setup.md), which also creates local `.tt/setup-state`. Updates leave topic cards, snapshots, setup state, and project-owned ignore rules untouched. Updating instructions and the root hook must not trigger initial archival or print the first-installation onboarding prompt.
 
 The [material library](material-library.md) originals, catalog, mirrored document cards, and selected root are also student-owned. Delivering new library instructions does not authorize moving documents, regenerating summaries, or changing ignore rules during an update; those actions belong to requested preparation or document work.
 
