@@ -2,38 +2,91 @@
 
 **ENG** | [RUS](README.ru.md)
 
-AI instructions and templates to help students plan, review, and defend coursework and theses, and help supervisors review the work and prepare questions.
+AI-agent instructions to help students prepare and defend coursework and theses, and help supervisors review the work and prepare questions.
 
 ## Installation
 
-Run in your project directory to install the most recent version tag by date. Requires Bash, Git, and curl.
+Run in your project directory. Requires Bash, Git, and curl. The command selects the most recent version tag by date.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/DumDereDum/thesis-trail/main/scripts/install.sh | bash
 ```
 
-[Installation details](docs/install.md).
-
-Agents using the installed instructions check for releases at most once per day and ask before applying an update. [Update details](docs/update.md).
+[Installation details](docs/install.md). The agent checks for updates at most once per day and asks before applying them.
 
 ## After installation: student workflow
 
-The topic-card workflow is unreleased and is not included in `v0.0.2`.
+1. Open the project in an AI agent that reads `AGENTS.md`.
+2. Send one of these messages:
 
-For releases with [initial project setup](docs/project-setup.md), first installation moves existing materials into a unique `.backup/project-.../`. It leaves `.git`, `.tt`, and older backups in place, preserves root instructions, and adds `/.backup/` to `.gitignore`. Your original files remain in the snapshot until the agent copies them back. Updates never repeat this archival step.
+   - **The project already had files:** "Prepare the project from the backup."
+   - **The project was empty:** "Let's start working on my coursework."
 
-Open your project in an AI agent that reads `AGENTS.md` and ask: "Prepare the project from the backup." The agent studies the original materials, restores their existing structure, and adds the topic card according to the project requirements. The snapshot is retained. If the project was empty, ask instead: "Let's start working on my coursework." For clients that do not read `AGENTS.md`, configure them to read `.tt/agent-rules.md`. Installation does not start an agent automatically.
+3. The agent restores materials, asks for missing information, and creates or updates `docs/topic.md`.
 
-The agent uses your message and supplied materials, asks a few missing questions, and helps create `docs/topic.md`: Russian and English titles, work type, study year and degree level, field of study, and a short description. Unknown fields can stay unspecified; a proposed English translation remains provisional until accepted. The card is created during the conversation, not by the installer.
+**Topic card:** Russian and English titles, work type, study year and degree level, field of study, and a short description. Unknown fields can remain unspecified; suggested translations stay provisional until accepted.
 
-Continue with ordinary messages such as "Review my introduction" or "My supervisor approved a new title; update the card." Completed preparation does not repeat in later sessions. The agent reads the card and updates accepted changes. The card belongs to you and is preserved during ThesisTrail updates. [Workflow details](docs/student-workflow.md).
+**Backup:** existing files temporarily move to `.tt/backups/project-…/`. The agent must restore them to working locations and verify the result. The backup does not accompany a Git clone; remove it only on your explicit request after verification.
+
+Continue with "Review my introduction" or "Update the approved topic title." Preparation does not repeat, and your documents survive updates.
+
+Installation does not start an agent. If your client does not read `AGENTS.md`, configure it to read `.tt/agent-rules.md`. [Topic workflow](instructions/research/topic.md) · [Backup preparation](instructions/maintenance/project-setup.md).
 
 ## Reference materials
 
-The material-library workflow is also unreleased. Keep reference originals in `materials/`, categorized as `articles/`, `books/`, `regulations/`, `guidelines/`, and `other/`. The agent creates a compact `docs/materials.md` catalog and mirrored cards: `materials/articles/example.pdf` corresponds to `docs/materials/articles/example.pdf.md`. Cards describe contents, use, known source/version, and inspected pages; unread documents are marked explicitly. Originals are ignored by Git, while Markdown metadata remains available in the repository. Missing originals must be supplied again after cloning or located using known source links.
+The agent organizes originals and creates a catalog with document cards:
 
-During preparation from `.backup/`, the agent checks the original directory's purpose first. If `materials/` already holds code or rendering assets, it restores that directory at its old path and uses an available `research-materials/` for reference documents. Only the actual reference-library root is ignored; its location is recorded in the catalog. For questions and quotations, the agent checks the relevant original rather than relying solely on a card. [Library and conflict-handling details](docs/material-library.md).
+```text
+materials/                         # Local originals
+├── articles/                      # Research papers
+├── books/                         # Books and chapters
+├── regulations/                   # Normative documents
+├── guidelines/                    # Methodological guidance
+└── other/                         # Other sources
+docs/
+├── materials.md                   # Shared catalog
+└── materials/
+    └── articles/example.pdf.md    # Card for materials/articles/example.pdf
+```
 
-You can also ask: "Use my topic to find five relevant articles, download them, and fill their cards and catalog." The agent uses your topic and requirements, verifies sources, downloads accessible originals, and records relevance and what it actually read. Unavailable full texts remain source links with an explicit status; the final response distinguishes works found, files saved, and cards completed. This requires search/download tools in your agent client. [Search workflow](docs/material-library.md#finding-and-downloading-sources).
+Originals are ignored by Git; the catalog and cards are tracked. After cloning, supply originals again or retrieve them using recorded links.
 
-At the start of a work session, the agent briefly reports new or missing library files. This check makes no changes or replacement downloads; resolving the differences requires your instruction.
+**Document cards:** contents, relevance, source, version, and pages actually inspected. Unread documents are marked explicitly; for quotations and document-grounded answers, the agent checks the original.
+
+If `materials/` contains code or project assets, the agent preserves it and uses an available `research-materials/` for sources. At session start, it reports new or missing library files; resolving differences requires your instruction.
+
+You can request a search:
+
+> Use my topic to find five relevant articles, download them, and fill their cards and catalog.
+
+Your agent client needs search and download tools. The agent verifies sources and reports what it found and actually saved.
+
+[Library and search instructions](instructions/research/materials.md).
+
+## Instruction structure
+
+The [entry point](instructions/agent-rules.md) selects modules relevant to the task:
+
+```text
+instructions/
+├── agent-rules.md             # Entry point and instruction selection
+├── general/                   # General project practices
+│   ├── git.md                 # Branches, commits, and publication
+│   ├── reproducibility.md     # Setup and repeatable experiments
+│   └── documentation.md       # README and documentation
+├── research/                  # Research work
+│   ├── topic.md               # Topic and major decisions
+│   └── materials.md           # Sources and document cards
+├── maintenance/               # ThesisTrail maintenance
+│   ├── project-setup.md       # Project preparation from a backup
+│   └── updates.md             # Updates
+└── domains/                   # 13 technical areas, without subdomains
+    ├── README.md              # Catalog and selection guidance
+    └── <area>/README.md       # Each area's starting recommendations
+```
+
+The [domain catalog](instructions/domains/README.md) covers 13 areas, including web, backend, mobile, machine learning, networks, and security. Each starts with a short README describing its scope and baseline recommendations. Areas can be combined for one project.
+
+When planning the work, the agent explains the relevant recommendations early; during later tasks it applies only the needed guidance. These starting recommendations can grow with instructor contributions and are not an official grading rubric. [How to extend an area](docs/instructions.md#adding-domain-instructions).
+
+In a student's project, instructions live in `.tt/`, linked from a marked block in `AGENTS.md`. `.tt/.gitignore` excludes backups and local state while keeping instructions available to Git. This repository's `docs/` contains ThesisTrail development specifications and is not installed into student projects.

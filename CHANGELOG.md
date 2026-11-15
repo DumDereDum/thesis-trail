@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+- Add 13 flat domain areas with short baseline recommendations, applicability boundaries, and conditional links for combining areas.
+- Explain relevant domain expectations early when planning student work, distinguish recommendations from academic requirements, and reuse the selected guidance without repeating full reviews for routine tasks.
+- Group agent instructions by general practices, research, maintenance, and domains, with a short entry point selecting relevant modules. Install and update the complete instruction tree while retaining the existing entry path.
+- Frame topics and major research decisions around the problem, meaningful alternatives, and justified choices; reuse accepted decisions for routine tasks without repeating research analysis or adding mandatory documents.
 - Guide students through a first topic discussion and a six-field, bilingual topic card in `docs/topic.md`.
 - Reuse existing topic context and update accepted decisions without repeating onboarding or inventing academic details.
 - Include the card template in the agent rules and extend the root `AGENTS.md` hook to cover the student workflow.
-- On first installation into an existing project, move original materials into a unique ignored `.backup/` snapshot and record pending preparation in `.tt/setup-state`.
+- On first installation into an existing project, move original materials into a unique ignored `.tt/backups/` snapshot and record pending preparation in `.tt/setup-state`.
+- Keep local ignore rules in a marked `.tt/.gitignore` block, preserve root ignore rules, and warn that backups must be fully restored before explicit removal. Resume legacy snapshots without moving them.
 - Make restoring the project from the retained snapshot the agent's first task; preserve original paths, use existing specifications, and create or reuse the topic card.
 - Print the appropriate next-step prompt after initial installation; preserve student documents, backups, and setup state during updates.
 - Organize local reference documents into articles, books, regulations, guidelines, and other materials, with a Git-visible catalog and mirrored Markdown cards.

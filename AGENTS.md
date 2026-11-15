@@ -15,6 +15,7 @@
 - Describe expected behavior in the relevant specification before implementing it. Update the specification when behavior changes.
 - Distinguish agreed requirements from proposals and open questions.
 - Implement according to the specification and verify against its acceptance criteria.
+- When adding or changing a domain area, follow [Adding domain instructions](docs/instructions.md#adding-domain-instructions). Keep contributor guidance in `docs/` and student-agent instructions in `instructions/`.
 
 ## Installer
 

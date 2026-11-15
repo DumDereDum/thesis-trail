@@ -23,8 +23,67 @@ archive_relative=''
 archive_entries=()
 archive_count=0
 archive_attempted=0
-metadata_index=4
-managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.tt/thesis-trail.json')
+instructions_index=5
+instructions_replacement_started=0
+metadata_index=6
+managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.tt/.gitignore' '.tt/instructions' '.tt/thesis-trail.json')
+
+validate_instruction_tree() {
+    local entry
+    [[ -d "$1" && ! -L "$1" ]] || tt_fail "Expected a real instruction directory: $1."
+    for entry in "$1"/* "$1"/.[!.]* "$1"/..?*; do
+        [[ -e "$entry" || -L "$entry" ]] || continue
+        [[ ! -L "$entry" ]] || tt_fail "Symbolic links are not supported in instructions: $entry."
+        if [[ -d "$entry" ]]; then
+            validate_instruction_tree "$entry"
+        else
+            [[ -f "$entry" ]] || tt_fail "Expected a regular instruction file: $entry."
+        fi
+    done
+}
+
+validate_destinations() {
+    local path
+    for path in "${managed_paths[@]}"; do
+        if [[ "$path" == .tt/instructions ]]; then
+            [[ ! -L "$tt_project/$path" && ( ! -e "$tt_project/$path" || -d "$tt_project/$path" ) ]] || tt_fail '.tt/instructions must be a real directory.'
+        else
+            tt_regular_or_absent "$tt_project/$path"
+        fi
+    done
+}
+
+prepare_marked_file() {
+    local source=$1 hook=$2 output=$3 begin=$4 end=$5
+    if [[ -f "$source" ]]; then
+        TT_HOOK="$hook" TT_BEGIN="$begin" TT_END="$end" awk '
+          function hook( line) {
+            while ((getline line < ENVIRON["TT_HOOK"])>0) print line
+            close(ENVIRON["TT_HOOK"])
+          }
+          $0==ENVIRON["TT_BEGIN"] {
+            if (opened || closed) { failed=1; exit 1 }
+            hook(); opened=1; found=1; next
+          }
+          $0==ENVIRON["TT_END"] {
+            if (!opened || closed) { failed=1; exit 1 }
+            closed=1; next
+          }
+          index($0,ENVIRON["TT_BEGIN"]) || index($0,ENVIRON["TT_END"]) { failed=1; exit 1 }
+          !opened || closed { print }
+          END {
+            if (failed || opened!=closed) exit 1
+            if (!found) { print ""; hook() }
+          }
+        ' "$source" > "$output" || tt_fail "Malformed or duplicate ThesisTrail markers in $source."
+        cp -p -- "$source" "$output.mode"
+        cp -- "$output" "$output.mode"
+        mv -- "$output.mode" "$output"
+    else
+        cp -- "$hook" "$output"
+        chmod 644 "$output"
+    fi
+}
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -57,12 +116,17 @@ fi
 
 tt_project=$(cd -P -- "$tt_project" && pwd)
 tt_project_paths
-for source_file in scripts/update.sh scripts/apply-update.sh instructions/agent-rules.md CHANGELOG.md; do
+for source_file in scripts/update.sh scripts/apply-update.sh instructions/agent-rules.md \
+    instructions/general/git.md instructions/general/reproducibility.md instructions/general/documentation.md \
+    instructions/research/topic.md instructions/research/materials.md \
+    instructions/maintenance/project-setup.md instructions/maintenance/updates.md instructions/domains/README.md CHANGELOG.md; do
     [[ -f "$release_directory/$source_file" && ! -L "$release_directory/$source_file" ]] || tt_fail "Missing or unsafe release file: $source_file."
 done
-for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+validate_instruction_tree "$release_directory/instructions"
+validate_destinations
 if [[ "$from_version" == none ]]; then
     [[ ! -e "$tt_metadata" ]] || tt_fail 'ThesisTrail metadata already exists. Use the updater instead.'
+    [[ ! -e "$tt_project/.tt/instructions" ]] || tt_fail 'Initial installation would overwrite .tt/instructions.'
     # Do not overwrite unrelated files when initializing a project.
     for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md .tt/setup-state; do
         tt_regular_or_absent "$tt_project/$path"
@@ -76,7 +140,17 @@ apply_cleanup() {
     if [[ "$application_started" == 1 && "$application_succeeded" == 0 ]]; then
         for ((index=changed_count-1; index>=0; index--)); do
             destination="$tt_project/${managed_paths[$index]}"
-            if [[ -f "$transaction/backup/$index" ]]; then
+            if [[ "$index" == "$instructions_index" ]]; then
+                if [[ -d "$transaction/backup/$index" ]]; then
+                    if rm -rf -- "$destination"; then
+                        mv -- "$transaction/backup/$index" "$destination" || restore_failed=1
+                    else
+                        restore_failed=1
+                    fi
+                elif [[ "$instructions_replacement_started" == 1 ]]; then
+                    rm -rf -- "$destination" || restore_failed=1
+                fi
+            elif [[ -f "$transaction/backup/$index" ]]; then
                 cp -p -- "$transaction/backup/$index" "$destination" || restore_failed=1
             else
                 rm -f -- "$destination" || restore_failed=1
@@ -91,7 +165,7 @@ apply_cleanup() {
             if [[ -e "$archived" || -L "$archived" ]]; then
                 if [[ -e "$destination" || -L "$destination" ]]; then
                     # The transaction may already have restored these two files.
-                    if [[ ( "$name" != AGENTS.md && "$name" != .gitignore ) || ! -f "$destination" || -L "$destination" ]]; then
+                    if [[ "$name" != AGENTS.md || ! -f "$destination" || -L "$destination" ]]; then
                         printf 'Error: Cannot restore an archived entry over a conflicting path: %s.\n' "$destination" >&2
                         restore_failed=1
                         continue
@@ -128,32 +202,40 @@ trap 'exit 143' TERM
 mkdir -p -- "$tt_service"
 tt_acquire_lock
 # Validate again under the lock, including the expected source version.
-for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+validate_destinations
 if [[ "$from_version" == none ]]; then
     [[ ! -e "$tt_metadata" ]] || tt_fail 'Metadata appeared during installation.'
+    [[ ! -e "$tt_project/.tt/instructions" ]] || tt_fail 'Initial installation would overwrite .tt/instructions.'
     [[ "$release_directory" != "$tt_project" && "$release_directory" != "$tt_project/"* ]] || tt_fail 'Initial installation requires release staging outside the project. Use a TMPDIR outside the project.'
     # Recheck initial-only conflicts under the lock before touching materials.
     for path in .tt/update.sh .tt/agent-rules.md .tt/CHANGELOG.md .tt/setup-state; do
         tt_regular_or_absent "$tt_project/$path"
         [[ ! -e "$tt_project/$path" ]] || tt_fail "Initial installation would overwrite $path."
     done
-    [[ ! -L "$tt_project/.backup" && ( ! -e "$tt_project/.backup" || -d "$tt_project/.backup" ) ]] || tt_fail '.backup must be a real directory.'
+    [[ ! -L "$tt_service/backups" && ( ! -e "$tt_service/backups" || -d "$tt_service/backups" ) ]] || tt_fail '.tt/backups must be a real directory.'
     shopt -s dotglob nullglob
     for entry in "$tt_project"/*; do
         name=${entry##*/}
-        case "$name" in .git|.tt|.backup) continue ;; esac
+        case "$name" in .git|.tt|.gitignore|.backup) continue ;; esac
         archive_entries[$archive_count]=$name
         archive_count=$((archive_count+1))
     done
     shopt -u dotglob nullglob
     if [[ "$archive_count" -gt 0 ]]; then
-        managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.gitignore' '.tt/setup-state' '.tt/thesis-trail.json')
-        metadata_index=6
-        for path in "${managed_paths[@]}"; do tt_regular_or_absent "$tt_project/$path"; done
+        managed_paths=('.tt/update.sh' '.tt/agent-rules.md' '.tt/CHANGELOG.md' 'AGENTS.md' '.tt/.gitignore' '.tt/setup-state' '.tt/instructions' '.tt/thesis-trail.json')
+        instructions_index=6
+        metadata_index=7
+        validate_destinations
     fi
 else
     tt_read_metadata
     [[ "$tt_current_version" == "$from_version" ]] || tt_fail 'The installed version changed. Check again before updating.'
+    if installed_layout=$(tt_json get "$tt_metadata" instructions_layout); then
+        [[ "$installed_layout" == 1 ]] || tt_fail "Unsupported instruction layout: $installed_layout."
+    else
+        [[ $? == 3 ]] || tt_fail 'Could not read instruction layout metadata.'
+        [[ ! -e "$tt_project/.tt/instructions" ]] || tt_fail 'Legacy upgrade would overwrite unrelated .tt/instructions.'
+    fi
     if [[ "$tt_current_tag" == "$reference" ]]; then
         [[ "$tt_current_commit" == "$commit" ]] || tt_fail 'The installed tag points to a different commit.'
         printf 'Already installed: %s.\n' "$reference"
@@ -164,42 +246,23 @@ fi
 transaction=$(mktemp -d "$tt_service/.apply.XXXXXXXX")
 mkdir -- "$transaction/new" "$transaction/backup"
 cp -- "$release_directory/scripts/update.sh" "$transaction/new/0"
-cp -- "$release_directory/instructions/agent-rules.md" "$transaction/new/1"
+printf '%s\n' '# ThesisTrail instructions' '' \
+    'Read [instructions/agent-rules.md](instructions/agent-rules.md) and follow its module-selection, setup, release-check, and update-consent instructions.' > "$transaction/new/1"
 cp -- "$release_directory/CHANGELOG.md" "$transaction/new/2"
+cp -Rp -- "$release_directory/instructions" "$transaction/new/$instructions_index"
 chmod 755 "$transaction/new/0"
 chmod 644 "$transaction/new/1" "$transaction/new/2"
 
 printf '%s\n' '<!-- ThesisTrail:begin -->' '## ThesisTrail' '' \
     'At the start of work in this project, read [.tt/agent-rules.md](.tt/agent-rules.md). Follow pending initial project setup before topic onboarding, and follow the student workflow, topic-card, release-check, and update-consent rules.' \
     '<!-- ThesisTrail:end -->' > "$transaction/hook"
-# Validate markers before constructing an edited root instruction file.
-if [[ -f "$tt_project/AGENTS.md" ]]; then
-    awk '
-      /<!-- ThesisTrail:(begin|end) -->/ {
-        if ($0=="<!-- ThesisTrail:begin -->" && !opened && !closed) { opened=1; next }
-        if ($0=="<!-- ThesisTrail:end -->" && opened && !closed) { closed=1; next }
-        exit 1
-      }
-      END { if (opened!=closed) exit 1 }
-    ' "$tt_project/AGENTS.md" || tt_fail 'Malformed or duplicate ThesisTrail markers in AGENTS.md.'
-    TT_HOOK="$transaction/hook" awk '
-      function hook( line) {
-        while ((getline line < ENVIRON["TT_HOOK"])>0) print line
-        close(ENVIRON["TT_HOOK"])
-      }
-      $0=="<!-- ThesisTrail:begin -->" { hook(); inside=1; found=1; next }
-      $0=="<!-- ThesisTrail:end -->" { inside=0; next }
-      !inside { print }
-      END { if (!found) { print ""; hook() } }
-    ' "$tt_project/AGENTS.md" > "$transaction/new/3"
-    cp -p -- "$tt_project/AGENTS.md" "$transaction/agents-mode"
-    # Preserve the existing permission bits while replacing the prepared text.
-    cp -- "$transaction/new/3" "$transaction/agents-mode"
-    mv -- "$transaction/agents-mode" "$transaction/new/3"
-else
-    cp -- "$transaction/hook" "$transaction/new/3"
-    chmod 644 "$transaction/new/3"
-fi
+prepare_marked_file "$tt_project/AGENTS.md" "$transaction/hook" "$transaction/new/3" \
+    '<!-- ThesisTrail:begin -->' '<!-- ThesisTrail:end -->'
+printf '%s\n' '# ThesisTrail:begin' '/backups/' '/setup-state' '/update-state' \
+    '/.update-lock/' '/.apply.*/' '/.update-state.*' '/.thesis-trail.*' \
+    '# ThesisTrail:end' > "$transaction/ignore-hook"
+prepare_marked_file "$tt_service/.gitignore" "$transaction/ignore-hook" "$transaction/new/4" \
+    '# ThesisTrail:begin' '# ThesisTrail:end'
 
 if [[ "$selection" == tag ]]; then
     version_json=$(tt_json_string "${reference#v}")
@@ -223,18 +286,12 @@ else
     tt_json_set "$metadata_staged" commit "$(tt_json_string "$commit")"
     tt_json_set "$metadata_staged" updated_at "$(tt_json_string "$timestamp")"
 fi
+tt_json_set "$metadata_staged" instructions_layout 1
 tt_json validate "$metadata_staged" || tt_fail 'Prepared metadata is invalid.'
 
 if [[ "$archive_count" -gt 0 ]]; then
-    if [[ -f "$tt_project/.gitignore" ]]; then
-        cp -p -- "$tt_project/.gitignore" "$transaction/new/4"
-    else
-        : > "$transaction/new/4"
-        chmod 644 "$transaction/new/4"
-    fi
-    printf '\n# ThesisTrail initial project backup\n/.backup/\n' >> "$transaction/new/4"
-    mkdir -p -- "$tt_project/.backup"
-    archive_directory=$(mktemp -d "$tt_project/.backup/project-$(date -u '+%Y%m%dT%H%M%SZ').XXXXXXXX")
+    mkdir -p -- "$tt_service/backups"
+    archive_directory=$(mktemp -d "$tt_service/backups/project-$(date -u '+%Y%m%dT%H%M%SZ').XXXXXXXX")
     archive_relative=${archive_directory#"$tt_project/"}
     git config --file "$transaction/new/5" setup.status pending
     git config --file "$transaction/new/5" setup.backup "$archive_relative"
@@ -242,7 +299,7 @@ fi
 
 for ((index=0; index<${#managed_paths[@]}; index++)); do
     destination="$tt_project/${managed_paths[$index]}"
-    if [[ -f "$destination" ]]; then cp -p -- "$destination" "$transaction/backup/$index"; fi
+    if [[ "$index" != "$instructions_index" && -f "$destination" ]]; then cp -p -- "$destination" "$transaction/backup/$index"; fi
 done
 application_started=1
 for ((index=0; index<archive_count; index++)); do
@@ -254,6 +311,13 @@ done
 for ((index=0; index<${#managed_paths[@]}; index++)); do
     destination="$tt_project/${managed_paths[$index]}"
     changed_count=$((index+1))
+    if [[ "$index" == "$instructions_index" ]]; then
+        # Move the old tree intact so rollback preserves its links and modes.
+        if [[ -d "$destination" ]]; then mv -- "$destination" "$transaction/backup/$index"; fi
+        instructions_replacement_started=1
+        mv -- "$transaction/new/$index" "$destination"
+        continue
+    fi
     if [[ -f "$destination" ]] && cmp -s -- "$transaction/new/$index" "$destination"; then
         continue
     fi
@@ -266,8 +330,10 @@ if [[ "$from_version" == none ]]; then
     if [[ -n "$archive_directory" ]]; then
         printf '\nOriginal project materials: %s\n' "$archive_relative"
         printf '%s\n' \
+            'This backup is local and ignored by Git; it will not be included in a clone.' \
             'Next: open this project in an AI agent that reads AGENTS.md and ask it to prepare the project from the backup.' \
-            'The agent will copy materials back, preserve the snapshot, and create or reuse the topic card.'
+            'The agent must copy all retained materials back, verify restoration, and create or reuse the topic card.' \
+            'Remove the backup only on your explicit request after complete, verified restoration.'
     else
         printf '\n%s\n' \
             'Next: open this project in an AI agent that reads AGENTS.md and ask to start your coursework or thesis.' \
